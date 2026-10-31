@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Specula.Wasm</RootNamespace>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <CompressionEnabled>false</CompressionEnabled>
+    <WasmEnableWebcil>true</WasmEnableWebcil>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Specula.Engine/Specula.Engine.fsproj" />
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+</Project>
