@@ -75,12 +75,29 @@ for (const scheme of ["light", "dark"]) {
       const lum = ([r, g, b]) => [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
       const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
       const app = getComputedStyle(document.querySelector(".app"));
-      return ratio(parse(app.color), parse(app.backgroundColor));
+      return { ratio: ratio(parse(app.color), parse(app.backgroundColor)), background: lum(parse(app.backgroundColor)) };
     });
-    expect(contrast).toBeGreaterThanOrEqual(4.5);
+    expect(contrast.ratio).toBeGreaterThanOrEqual(4.5);
+    // The theme must actually follow the system preference.
+    if (scheme === "dark") expect(contrast.background).toBeLessThan(0.1);
+    else expect(contrast.background).toBeGreaterThan(0.5);
     await page.screenshot({ path: testInfo.outputPath(`overview-${scheme}.png`), fullPage: true });
   });
 }
+
+test("explicit theme setting overrides the system preference", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await install(page, scenarios.passing);
+  await choose(page, "octo/demo");
+  await page.goto("/#/settings");
+  await page.getByLabel("Theme").selectOption("dark");
+  await page.waitForTimeout(200);
+  const dark = await page.evaluate(() => getComputedStyle(document.querySelector(".app")).backgroundColor);
+  await page.getByLabel("Theme").selectOption("light");
+  await page.waitForTimeout(200);
+  const light = await page.evaluate(() => getComputedStyle(document.querySelector(".app")).backgroundColor);
+  expect(dark).not.toEqual(light);
+});
 
 test("keyboard: skip link, navigation and refresh are reachable with visible names", async ({ page }) => {
   await install(page, scenarios.passing);

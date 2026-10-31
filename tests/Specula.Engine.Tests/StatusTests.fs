@@ -57,3 +57,13 @@ let ``unknown is never rendered with the success state`` () =
     Assert.Equal("unknown", Status.verdictState (Status.HeadUnknown "x"))
     Assert.Equal("unknown", Status.outcomeState UnknownOutcome)
     Assert.Equal("ok", Status.outcomeState Passed)
+
+[<Fact>]
+let ``a deploy job on HEAD counts as the deployment workflow, a smoke job does not`` () =
+    let checks = [ check 1L "build-and-test" head Passed; check 2L "deploy" head Passed; check 3L "deployed-smoke" head Passed ]
+    let rows = Status.truthRows (Some head) Status.HeadPassing [] checks [] Map.empty
+    let deploy = rows |> List.find (fun r -> r.Id = "deploy-workflow")
+    Assert.Equal("Passing", deploy.Value)
+    Assert.Contains("job name: deploy", deploy.Detail)
+    let none = Status.truthRows (Some head) Status.HeadPassing [] [ check 1L "build" head Passed; check 3L "deployed-smoke" head Passed ] [] Map.empty
+    Assert.Equal("Not found", (none |> List.find (fun r -> r.Id = "deploy-workflow")).Value)
