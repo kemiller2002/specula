@@ -16,6 +16,7 @@ Requirements definition in progress. No application implementation or passing te
 - [Detailed visual and interaction design](requirements/EXPERIENCE.md)
 - [Capabilities, limitations and data contracts](requirements/CAPABILITIES.md)
 - [Color, theme and visual token contract](requirements/VISUAL-TOKENS.md)
+- [Requirements gap closure and implementation priorities](requirements/GAP-CLOSURE.md)
 
 ## Architecture
 
