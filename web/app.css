@@ -184,6 +184,11 @@
     gap: var(--ef-primitive-space-3);
   }
   .app-metrics > li { min-inline-size: 0; overflow: hidden; }
+  .app-metrics .ef-metric-card__value {
+    font-size: var(--ef-primitive-font-size-2xl);
+    overflow-wrap: break-word;
+    hyphens: manual;
+  }
 
   .app-dimensions {
     display: grid;

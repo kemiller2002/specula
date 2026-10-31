@@ -104,7 +104,12 @@ module Status =
         fragments |> List.exists (fun f -> name.Contains(f, StringComparison.OrdinalIgnoreCase))
 
     let deploymentRunsForSha (sha: string) (runs: WorkflowRun list) =
-        runsForSha sha runs |> List.filter (fun r -> nameMatches [ "deploy"; "pages"; "release"; "publish" ] r.Name)
+        runsForSha sha runs |> List.filter (fun r -> nameMatches [ "deploy"; "pages"; "release"; "publish" ] r.Name && not (nameMatches [ "smoke" ] r.Name))
+
+    let private deployNames = [ "deploy"; "pages"; "release"; "publish" ]
+
+    let deploymentChecksForSha (sha: string) (checks: CheckRun list) =
+        checksForSha sha checks |> List.filter (fun c -> nameMatches deployNames c.Name && not (nameMatches [ "smoke" ] c.Name))
 
     let latestStatus (statuses: DeploymentStatus list) =
         statuses |> List.sortByDescending (fun s -> s.CreatedAt, s.Id) |> List.tryHead
@@ -137,18 +142,20 @@ module Status =
                     | _ -> $"Aggregated from check runs and workflow runs whose head SHA is {Repo.shortSha sha}."
                   Url = None }
 
-            let deployRuns = deploymentRunsForSha sha runs
+            let deployRuns =
+                (deploymentRunsForSha sha runs |> List.map (fun r -> r.Name, r.Outcome, r.HtmlUrl, "workflow"))
+                @ (deploymentChecksForSha sha checks |> List.map (fun c -> c.Name, c.Outcome, c.HtmlUrl, "job"))
             let workflowRow =
                 match deployRuns with
                 | [] ->
                     { Id = "deploy-workflow"; Label = "Deployment workflow"; State = "unknown"; Value = "Not found"
-                      Detail = "No workflow run for HEAD with deploy, pages, release or publish in its name."; Url = None }
-                | runs ->
-                    let v = aggregate (runs |> List.map (fun r -> r.Outcome))
-                    let first = runs |> List.head
+                      Detail = "No workflow run or job for HEAD with deploy, pages, release or publish in its name."; Url = None }
+                | items ->
+                    let v = aggregate (items |> List.map (fun (_, o, _, _) -> o))
+                    let name, _, url, kind = items |> List.head
                     { Id = "deploy-workflow"; Label = "Deployment workflow"; State = verdictState v; Value = verdictLabel v
-                      Detail = $"Matched by workflow name: {first.Name}. A green workflow does not prove the application works."
-                      Url = Some first.HtmlUrl }
+                      Detail = $"Matched by {kind} name: {name}. A green deployment workflow does not prove the application works."
+                      Url = Some url }
 
             let headDeployments = deployments |> List.filter (fun d -> String.Equals(d.Sha, sha, StringComparison.OrdinalIgnoreCase))
             let recorded =
