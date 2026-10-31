@@ -91,3 +91,8 @@ Before writing Specula UI:
 3. Record selected theme/brand manifest and exact public token names in implementation evidence.
 4. Use Forma primitives for spacing, typography, radius and elevation; derive a component-role table from the pinned package rather than inventing numbers.
 5. Verify visual screenshots and CSS contract validation. A compiling app is not sufficient visual acceptance.
+
+## Freshness rule
+- At implementation start, select the newest published stable compatible Forma release and its matching shipped token, theme and brand contracts. The primitive hex values above document the inspected source baseline; if the selected release differs, its shipped contract takes precedence.
+- Do not pin the older Echelon marketing site's Forma version merely for visual consistency. Reuse the current Echelon brand manifest from the newest compatible release and test visual consistency.
+- Record the exact release, manifest and contract version in Specula's dependency baseline.
