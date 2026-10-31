@@ -82,6 +82,20 @@ module Status =
         // runs cover repositories whose checks endpoint returned nothing.
         aggregate (if List.isEmpty checkOutcomes then runOutcomes else checkOutcomes @ runOutcomes)
 
+    /// SPEC-V-007 / SPEC-D-004: when a CI source could not be read, a passing
+    /// verdict from the remaining sources is not evidence that HEAD passes
+    /// (an unread failing check may exist). Failures and running checks stay.
+    let qualify (unreadable: string list) (verdict: HeadVerdict) : HeadVerdict =
+        match unreadable, verdict with
+        | [], v -> v
+        | sources, HeadPassing ->
+            let names = String.Join(" and ", sources)
+            HeadUnknown $"Only partial CI data: {names} could not be read, so passing results do not establish the HEAD status."
+        | sources, HeadUnknown _ ->
+            let names = String.Join(" and ", sources)
+            HeadUnknown $"{names} could not be read (see the refresh status). The HEAD status is unknown, not passing."
+        | _, v -> v
+
     /// The most recent passing run on a different SHA, used only to warn that
     /// it does NOT verify HEAD (acceptance scenario 8).
     let olderPassingRun (headSha: string) (runs: WorkflowRun list) : WorkflowRun option =

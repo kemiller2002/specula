@@ -5,7 +5,7 @@ open Specula.Engine
 open Specula.Tests.Fixtures
 
 let inputs kickoff runs : Metrics.Inputs =
-    { Kickoff = kickoff; Runs = runs; RunsTotal = Some(int64 (List.length runs)); Deployments = []; DeploymentStatuses = Map.empty; Requirements = None; Corrections = None }
+    { Kickoff = kickoff; Runs = runs; RunsTotal = Some(int64 (List.length runs)); Deployments = []; DeploymentStatuses = Map.empty; Requirements = None; Corrections = None; RunsUnreadable = None }
 
 let runs =
     [ run 1L "ci" "a" Failed "2026-10-30T10:10:00Z" "2026-10-30T10:15:00Z" 1L
@@ -55,3 +55,12 @@ let ``competition clock reports elapsed, remaining and deadline passed`` () =
     Assert.Equal(System.TimeSpan.FromMinutes 360.0, mid.Remaining)
     Assert.True((Metrics.clock (t "2026-10-30T18:00:00Z") c).Value.Passed)
     Assert.True((Metrics.clock (t "2026-10-30T11:00:00Z") Preferences.indyInitPreset).IsNone)
+
+[<Fact>]
+let ``unreadable workflow runs make run-based metrics unmeasurable instead of "none observed"`` () =
+    let i = { inputs (Some(t "2026-10-30T10:00:00Z")) [] with RunsUnreadable = Some "rate limited" }
+    let ms = Metrics.all i
+    for id in [ "time-to-first-passing-ci"; "failure-to-recovery"; "correction-cycles" ] do
+        let m = ms |> List.find (fun m -> m.Id = id)
+        Assert.True(m.Value.IsNone, id)
+        Assert.Contains("could not be read", m.Reason)

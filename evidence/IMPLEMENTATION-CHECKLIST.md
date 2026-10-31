@@ -7,7 +7,7 @@ Requirement → implementation → verification. Paths are relative to the repos
 | SPEC-P-001, SPEC-UI-001, SPEC-UI-018, SPEC-S-003, SPEC-A-003 repository input | `Repo.parse` (owner/repo, github.com URLs; rejects schemes, hosts, invalid names) | Unit `RepoTests`; Browser "malformed and missing repositories" |
 | SPEC-P-002, SPEC-S-001, QG-005 read-only | Only `GET` effects are constructed (`Update.httpEffect`); credentials `omit` | Code review: no other `HttpMethod`; final report §13 |
 | SPEC-D-006, SPEC-S-002 no token | No token anywhere in the client; CI token used only by the live test's own comparison request | `grep` in final report |
-| SPEC-UI-002, SPEC-UI-004, SPEC-G-006, QG-001 SHA-accurate HEAD | `Status.headVerdict` (exact SHA, rerun supersedes), `olderPassingRun` warning | Unit `StatusTests`; Browser "old successful run", "failed CI on HEAD"; UpdateTests "old green CI" |
+| SPEC-UI-002, SPEC-UI-004, SPEC-G-006, QG-001 SHA-accurate HEAD | `Status.headVerdict` (exact SHA, rerun supersedes), `olderPassingRun` warning, `Status.qualify` (partial CI data never yields Passing) | Unit `StatusTests`; Browser "old successful run", "failed CI on HEAD"; UpdateTests "old green CI" |
 | SPEC-G-007 refresh consistency | `RecheckHead` stage; `finalize` marks Partial when HEAD moved | Unit "HEAD moving during refresh" |
 | SPEC-G-001, SPEC-UI-021, SPEC-A-010 deployment truth | `Status.truthRows` (CI / deployment workflow / URL / smoke) | Unit "deployment without smoke evidence"; Browser same |
 | SPEC-UI-003, SPEC-D-003, CAP-004..008 activity | `Events.of*`, `Events.normalize`, filters, details, load more | Unit `EventsTests`; Browser "activity filters and event details" |
