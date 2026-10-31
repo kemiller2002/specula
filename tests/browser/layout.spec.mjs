@@ -54,7 +54,7 @@ test("200% text scaling at 390px keeps content contained", async ({ page }) => {
   await settled(page);
   // CSSOM changes are permitted by the page's CSP (injected <style> is not).
   const scale = () => page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
-  for (const screen of ["overview", "activity", "verification", "replay"]) {
+  for (const screen of ["overview", "activity", "verification", "replay", "settings", "about", "select"]) {
     await page.goto(`/#/${screen}`);
     await scale();
     await page.waitForTimeout(100);
@@ -67,6 +67,7 @@ test("200% text scaling at 390px keeps content contained", async ({ page }) => {
 for (const scheme of ["light", "dark"]) {
   test(`${scheme} theme renders legible text on its surfaces`, async ({ page }, testInfo) => {
     await page.emulateMedia({ colorScheme: scheme });
+    await page.addInitScript((theme) => localStorage.setItem("specula.preferences", JSON.stringify({ version: 1, theme, selectedView: "overview", recentRepositories: [], competitions: {} })), scheme);
     await install(page, scenarios.failedHead);
     await choose(page, "octo/demo");
     await settled(page);
@@ -78,12 +79,44 @@ for (const scheme of ["light", "dark"]) {
       return { ratio: ratio(parse(app.color), parse(app.backgroundColor)), background: lum(parse(app.backgroundColor)) };
     });
     expect(contrast.ratio).toBeGreaterThanOrEqual(4.5);
-    // The theme must actually follow the system preference.
     if (scheme === "dark") expect(contrast.background).toBeLessThan(0.1);
     else expect(contrast.background).toBeGreaterThan(0.5);
     await page.screenshot({ path: testInfo.outputPath(`overview-${scheme}.png`), fullPage: true });
   });
 }
+
+test("first-time visitors use light even when the device prefers dark", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await install(page, scenarios.passing);
+  await page.goto("/");
+  await ready(page);
+  await expect(page.locator(".app-theme")).toHaveAttribute("data-ef-theme", "light");
+  const background = await page.locator(".app").evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(background).toBe("rgb(242, 239, 231)");
+});
+
+test("a saved dark preference is applied before the application is ready", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.addInitScript(() => localStorage.setItem("specula.preferences", JSON.stringify({ version: 1, theme: "dark", selectedView: "overview", recentRepositories: [], competitions: {} })));
+  await install(page, scenarios.passing);
+  await page.goto("/");
+  await expect(page.locator(".app-theme")).toHaveAttribute("data-ef-theme", "dark");
+  await ready(page);
+  await expect(page.locator(".app-theme")).toHaveAttribute("data-ef-theme", "dark");
+  const background = await page.locator(".app").evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(background).toBe("rgb(23, 26, 24)");
+});
+
+test("an explicit system preference still follows the device", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => localStorage.setItem("specula.preferences", JSON.stringify({ version: 1, theme: "system", selectedView: "overview", recentRepositories: [], competitions: {} })));
+  await install(page, scenarios.passing);
+  await page.goto("/");
+  await ready(page);
+  await expect(page.locator(".app-theme")).toHaveAttribute("data-ef-theme", "system");
+  const background = await page.locator(".app").evaluate((el) => getComputedStyle(el).backgroundColor);
+  expect(background).toBe("rgb(23, 26, 24)");
+});
 
 test("explicit theme setting overrides the system preference", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
@@ -119,11 +152,11 @@ test("keyboard: skip link, navigation and refresh are reachable with visible nam
   await expect(page.locator("h1")).toHaveText("Activity");
 });
 
-test("accessibility basics: landmarks, labelled controls, one h1, live status", async ({ page }) => {
+test("accessibility basics: landmarks, labelled controls, unique ids, one h1, live status", async ({ page }) => {
   await install(page, scenarios.passing);
   await choose(page, "octo/demo");
   await settled(page);
-  for (const screen of ["overview", "activity", "verification", "replay", "settings", "about"]) {
+  for (const screen of ["overview", "activity", "verification", "replay", "settings", "about", "select"]) {
     await page.goto(`/#/${screen}`);
     await expect(page.locator("h1:visible")).toHaveCount(1);
     const unlabeled = await page.evaluate(() =>
@@ -135,6 +168,11 @@ test("accessibility basics: landmarks, labelled controls, one h1, live status", 
         })
         .map((el) => el.outerHTML.slice(0, 80)));
     expect(unlabeled, screen).toEqual([]);
+    const duplicateIds = await page.evaluate(() => {
+      const ids = [...document.querySelectorAll("[id]")].map((el) => el.id);
+      return ids.filter((id, index) => ids.indexOf(id) !== index);
+    });
+    expect(duplicateIds, `${screen} duplicate ids`).toEqual([]);
     const small = await page.evaluate(() =>
       [...document.querySelectorAll("button, nav a, select, input:not([type=radio])")]
         .filter((el) => el.offsetParent !== null)
@@ -146,14 +184,14 @@ test("accessibility basics: landmarks, labelled controls, one h1, live status", 
   await expect(page.locator(".app-status")).toHaveAttribute("aria-live", "polite");
 });
 
-test("activity filters use a restrained selected state in dark mode", async ({ page }) => {
+test("activity filters use a restrained selected state in dark mode", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ colorScheme: "dark" });
   await install(page, scenarios.failedHead);
   await choose(page, "octo/demo");
   await settled(page);
   await page.goto("/#/activity");
-  const selected = page.locator(".app-filters .ef-segment:has(input:checked)");
+  const selected = page.locator('section[aria-label="Activity"] .app-filters .ef-segment:has(input:checked)');
   await expect(selected).toHaveCount(1);
   const colors = await selected.evaluate((el) => {
     const label = getComputedStyle(el);
@@ -172,4 +210,72 @@ test("activity filters use a restrained selected state in dark mode", async ({ p
   expect(colors.selectedBackground).not.toBe(colors.pageBackground);
   expect(colors.border).not.toBe(colors.selectedBackground);
   await page.screenshot({ path: testInfo.outputPath("activity-dark-filters-390.png"), fullPage: true });
+});
+
+for (const scheme of ["light", "dark"]) {
+  for (const width of [390, 1440]) {
+    test(`visual matrix: every screen at ${width}px in ${scheme} theme`, async ({ page }, testInfo) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.addInitScript((theme) => localStorage.setItem("specula.preferences", JSON.stringify({ version: 1, theme, selectedView: "overview", recentRepositories: [], competitions: {} })), scheme);
+      await install(page, scenarios.failedHead);
+      await choose(page, "octo/demo");
+      await settled(page);
+      for (const screen of ["overview", "activity", "verification", "replay", "settings", "about"]) {
+        await page.goto(`/#/${screen}`);
+        await page.waitForTimeout(100);
+        await page.screenshot({ path: testInfo.outputPath(`${screen}-${width}-${scheme}.png`), fullPage: true });
+        const g = await geometry(page);
+        expect(g.overflow, screen).toBeLessThanOrEqual(0);
+        expect(g.escapes, screen).toEqual([]);
+      }
+    });
+  }
+}
+
+test("computed control and surface contrast meets the text threshold in both themes", async ({ page }) => {
+  await install(page, scenarios.failedHead);
+  await choose(page, "octo/demo");
+  await settled(page);
+  for (const theme of ["light", "dark"]) {
+    await page.goto("/#/settings");
+    await page.getByLabel("Theme").selectOption(theme);
+    await page.goto("/#/replay");
+    const results = await page.evaluate(() => {
+      const parse = (value) => value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0];
+      const luminance = ([r, g, b]) => [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+      const ratio = (foreground, background) => { const [high, low] = [luminance(foreground), luminance(background)].sort((a, b) => b - a); return (high + 0.05) / (low + 0.05); };
+      return [".app", ".ef-surface", "input[type=datetime-local]", ".app-filters .ef-segment"].map((selector) => {
+        const element = [...document.querySelectorAll(selector)].find((candidate) => candidate.offsetParent !== null);
+        const style = getComputedStyle(element);
+        return { selector, ratio: ratio(parse(style.color), parse(style.backgroundColor)) };
+      });
+    });
+    for (const result of results) expect(result.ratio, `${theme} ${result.selector}`).toBeGreaterThanOrEqual(4.5);
+  }
+});
+
+test("native date-time controls remain contained, legible, and keyboard focusable at phone width", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await install(page, scenarios.passing);
+  await choose(page, "octo/demo");
+  await page.goto("/#/replay");
+  const controls = page.locator('input[type="datetime-local"]:visible');
+  await expect(controls).toHaveCount(2);
+  for (const control of await controls.all()) {
+    const geometry = await control.evaluate((el) => ({ width: el.getBoundingClientRect().width, viewport: document.documentElement.clientWidth, height: el.getBoundingClientRect().height }));
+    expect(geometry.width).toBeLessThanOrEqual(geometry.viewport);
+    expect(geometry.height).toBeGreaterThanOrEqual(44);
+    await control.focus();
+    await expect(control).toBeFocused();
+  }
+});
+
+test("reduced motion removes meaningful transition time", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await install(page, scenarios.passing);
+  await page.goto("/");
+  await ready(page);
+  const duration = await page.getByRole("button", { name: "Observe repository" }).evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration));
+  expect(duration).toBeLessThanOrEqual(0.001);
 });

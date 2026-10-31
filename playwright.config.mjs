@@ -4,7 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 // (tests/browser/github-fixtures.mjs). Live checks use playwright.live.config.mjs.
 export default defineConfig({
   testDir: "tests/browser",
-  testIgnore: /live\..*/,
+  testIgnore: [/live\..*/, /mobile\.webkit\..*/],
   fullyParallel: true,
   workers: process.env.CI ? 2 : 4,
   retries: 0,

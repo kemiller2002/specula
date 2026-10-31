@@ -94,7 +94,7 @@ module Preferences =
           RecentRepositories = []
           SelectedView = "overview"
           AutoRefreshSeconds = 0
-          Theme = SystemTheme
+          Theme = LightTheme
           Competitions = Map.empty }
 
     let knownViews = [ "overview"; "activity"; "verification"; "replay" ]
@@ -153,7 +153,7 @@ module Preferences =
             |> List.truncate maxRecent
           SelectedView = Json.str "selectedView" json |> Option.filter (fun v -> List.contains v knownViews) |> Option.defaultValue "overview"
           AutoRefreshSeconds = 0
-          Theme = Json.str "theme" json |> Option.map themeOfKey |> Option.defaultValue SystemTheme
+          Theme = Json.str "theme" json |> Option.map themeOfKey |> Option.defaultValue LightTheme
           Competitions = decodeCompetitions json }
 
     let decode (stored: string option) : LoadResult =

@@ -58,7 +58,8 @@ module View =
               pt "glyph" (Events.kindGlyph e.Kind)
               pt "title" (orDash e.Title)
               pt "summary" e.Summary
-              pt "time" (Time.local model.Zone e.EventTime)
+              pt "time" (Time.contextual model.Now model.Zone e.EventTime)
+              pt "timeExact" (Time.local model.Zone e.EventTime)
               pt "timeIso" (Time.iso e.EventTime)
               pt "utc" (Time.utc e.EventTime)
               pt "sha" (e.Sha |> Option.map Repo.shortSha |> Option.defaultValue "")
@@ -636,8 +637,8 @@ module View =
           f "hideClock" clock.IsNone
           t "clockKickoff" (clock |> Option.map (fun c -> Time.local model.Zone c.Kickoff) |> Option.defaultValue "")
           t "clockDeadline" (clock |> Option.map (fun c -> Time.local model.Zone c.Deadline) |> Option.defaultValue "")
-          t "clockElapsed" (clock |> Option.map (fun c -> Time.duration c.Elapsed) |> Option.defaultValue "")
-          t "clockRemaining" (clock |> Option.map (fun c -> if c.Passed then "Deadline passed" else Time.duration c.Remaining) |> Option.defaultValue "")
+          t "clockElapsed" (clock |> Option.map (fun c -> Time.duration c.Elapsed + " elapsed") |> Option.defaultValue "")
+          t "clockRemaining" (clock |> Option.map (fun c -> if c.Passed then "Deadline passed" else Time.duration c.Remaining + " remaining") |> Option.defaultValue "")
           t "clockAsOf" $"As of {Time.local model.Zone model.Now} by this device's clock, which may be wrong. Updates when you interact or refresh."
           f "clockPassed" (clock |> Option.exists (fun c -> c.Passed))
           f "presentation" r.Presentation
@@ -699,7 +700,7 @@ module View =
                     item [ pt "id" k; pt "name" k; pt "state" state; pt "label" label ]))
             |> Option.defaultValue []
         [ t "version" BuildInfo.Version
-          t "buildTime" BuildInfo.BuildTime
+          t "buildTime" (Time.parseIso BuildInfo.BuildTime |> Option.map (Time.local model.Zone) |> Option.defaultValue BuildInfo.BuildTime)
           t "sourceUrl" (if BuildInfo.SourceSha.Length = 40 then $"https://github.com/kemiller2002/specula/commit/{BuildInfo.SourceSha}" else "https://github.com/kemiller2002/specula")
           items "dependencies" deps
           items "adapters" adapters

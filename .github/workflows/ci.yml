@@ -47,10 +47,12 @@ jobs:
         env:
           SPECULA_SOURCE_SHA: ${{ github.sha }}
         run: npm run build
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
       - name: Browser acceptance (fixtures)
         run: npx playwright test
+      - name: Mobile WebKit controls
+        run: npm run test:mobile
       - name: Upload test evidence
         if: always()
         uses: actions/upload-artifact@v4

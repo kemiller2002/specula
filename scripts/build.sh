@@ -35,6 +35,7 @@ cp node_modules/@echelon-foundry/design-system/dist/brands/echelon.css "dist/${F
 sed -e "s#\./limen/#./${LIMEN_DIR}/#g" -e "s#_framework/dotnet.js#_framework/dotnet.js?v=${SHORT}#" -e "s#\./wasm-transport.js#./wasm-transport.js?v=${SHORT}#" web/main.js > dist/main.js
 sed -e "s#\./limen/#./${LIMEN_DIR}/#g" web/wasm-transport.js > dist/wasm-transport.js
 cp web/app.css dist/app.css
+cp web/theme-bootstrap.js dist/theme-bootstrap.js
 sed -e "s#__BUILD__#${SHORT}#g" -e "s#href=\"forma/#href=\"${FORMA_DIR}/#g" web/index.html > dist/index.html
 cp dist/index.html dist/404.html
 touch dist/.nojekyll

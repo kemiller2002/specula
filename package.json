@@ -12,6 +12,7 @@
     "build": "bash scripts/build.sh",
     "test:unit": "dotnet test tests/Specula.Engine.Tests",
     "test:browser": "playwright test",
+    "test:mobile": "playwright test --config playwright.mobile.config.mjs",
     "test:live": "playwright test --config playwright.live.config.mjs",
     "serve": "node scripts/serve.mjs dist 4173",
     "check:deps": "node scripts/check-dependencies.mjs",
