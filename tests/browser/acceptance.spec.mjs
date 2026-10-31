@@ -269,6 +269,10 @@ test("activity filters and event details keep timestamps, SHAs and source links"
   const items = page.locator(".app-feed .app-event:visible");
   await expect(items).toHaveCount(2);
   await expect(items.first()).toContainText(HEAD.slice(0, 7));
+  const time = items.first().locator("time");
+  await expect(time).toHaveAttribute("datetime", /2026-10-30T/);
+  await expect(time).toHaveAttribute("title", /Oct 30, 2026/);
+  await expect(time).toHaveAttribute("aria-label", /UTC/);
   const link = items.first().getByRole("link", { name: /View commit on GitHub/ });
   await expect(link).toHaveAttribute("href", `https://github.com/octo/demo/commit/${HEAD}`);
   await items.first().getByRole("button", { name: "Details" }).click();

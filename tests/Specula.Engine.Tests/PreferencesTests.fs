@@ -6,6 +6,22 @@ open Specula.Engine.Preferences
 open Specula.Tests.Fixtures
 
 [<Fact>]
+let ``light is the first-run and missing-theme default`` () =
+    Assert.Equal(LightTheme, Preferences.empty.Theme)
+    match Preferences.decode (Some """{"version":1,"selectedRepository":"octo/demo"}""") with
+    | Loaded p -> Assert.Equal(LightTheme, p.Theme)
+    | other -> failwithf "unexpected %A" other
+
+[<Fact>]
+let ``explicit dark and system preferences remain explicit`` () =
+    let decodeTheme value =
+        match Preferences.decode (Some $"""{{"version":1,"theme":"{value}"}}""") with
+        | Loaded p -> p.Theme
+        | other -> failwithf "unexpected %A" other
+    Assert.Equal(DarkTheme, decodeTheme "dark")
+    Assert.Equal(SystemTheme, decodeTheme "system")
+
+[<Fact>]
 let ``round trips version 1 preferences`` () =
     let prefs =
         { Preferences.empty with

@@ -20,14 +20,26 @@ module Time =
             let abs = offset.Duration()
             $"UTC{sign}{abs.Hours:D2}:{abs.Minutes:D2}"
 
-    /// "2026-10-31 09:41 UTC−04:00"
+    /// Exact viewer-local instant with an unambiguous offset.
+    /// Example: "Oct 31, 2026 · 9:41 AM (UTC−04:00)".
     let local (zone: TimeZoneInfo) (instant: DateTimeOffset) : string =
         let l = toLocal zone instant
-        l.ToString("yyyy-MM-dd HH:mm", inv) + " " + offsetLabel l.Offset
+        l.ToString("MMM d, yyyy '·' h:mm tt", inv) + " (" + offsetLabel l.Offset + ")"
 
     let localShort (zone: TimeZoneInfo) (instant: DateTimeOffset) : string =
         let l = toLocal zone instant
-        l.ToString("MMM d, HH:mm", inv)
+        l.ToString("MMM d '·' h:mm tt", inv)
+
+    /// Compact event time relative to the viewer's local calendar. Exact time
+    /// remains available beside it through `local` and the HTML datetime value.
+    let contextual (now: DateTimeOffset) (zone: TimeZoneInfo) (instant: DateTimeOffset) : string =
+        let current = toLocal zone now
+        let value = toLocal zone instant
+        let clock = value.ToString("h:mm tt", inv)
+        if value.Date = current.Date then $"Today · {clock}"
+        elif value.Date = current.Date.AddDays(-1.0) then $"Yesterday · {clock}"
+        elif value.Year = current.Year then value.ToString("MMM d '·' h:mm tt", inv)
+        else value.ToString("MMM d, yyyy '·' h:mm tt", inv)
 
     let utc (instant: DateTimeOffset) : string =
         instant.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", inv)

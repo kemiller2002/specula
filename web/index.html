@@ -16,7 +16,8 @@
   <script type="module" src="main.js?v=__BUILD__"></script>
 </head>
 <body data-ef-type="application">
-<div class="app-theme" data-bind-data-ef-theme="theme">
+<div class="app-theme" data-ef-theme="light" data-bind-data-ef-theme="theme">
+<script src="theme-bootstrap.js?v=__BUILD__"></script>
 <div class="app" data-ef-brand="echelon">
   <a class="ef-skip-link" href="#main">Skip to main content</a>
 
@@ -109,6 +110,7 @@
 
     <!-- ===== Overview ===== -->
     <section class="app-screen" data-bind-hidden="hideOverview" hidden aria-label="Overview">
+      <p class="app-screen-intro">Current repository health, HEAD verification, and the evidence that needs attention.</p>
       <template data-if="hasShared">
         <div class="ef-alert app-notice" role="status" data-tone="attention">
           <div class="ef-alert__icon" aria-hidden="true">!</div>
@@ -117,7 +119,8 @@
         </div>
       </template>
 
-      <article class="ef-surface app-card" aria-labelledby="ov-head-title">
+      <div class="ef-focus-stage app-overview-priority">
+      <article class="ef-surface app-card app-head-card ef-focus-stage__primary" aria-labelledby="ov-head-title">
         <h2 id="ov-head-title">Current HEAD</h2>
         <dl class="ef-key-value-list app-facts">
           <div><dt>Repository</dt><dd><span class="ef-identifier" data-text="repoText"></span></dd></div>
@@ -141,7 +144,7 @@
         </div>
       </article>
 
-      <article class="ef-surface app-card" aria-labelledby="ov-attention-title">
+      <article class="ef-surface app-card app-attention-card ef-focus-stage__support" aria-labelledby="ov-attention-title">
         <h2 id="ov-attention-title">Needs attention</h2>
         <ul class="app-list" data-bind-hidden="noAttentionList">
           <template data-each="attention" data-key="id">
@@ -150,6 +153,7 @@
         </ul>
         <template data-if="noAttention"><p>Nothing in the loaded data needs attention. This is not a verification claim.</p></template>
       </article>
+      </div>
 
       <div class="app-dimensions">
         <article class="ef-surface app-card app-dimension" aria-labelledby="dim-activity">
@@ -211,7 +215,7 @@
               </div>
               <div class="ef-feed-item__meta">
                 <template data-if="hasOutcome"><span class="ef-status-lozenge" data-bind-data-state="outcomeState" data-text="outcome"></span></template>
-                <time data-bind-datetime="timeIso" data-text="time"></time>
+                <time data-bind-datetime="timeIso" data-bind-title="timeExact" data-bind-aria-label="timeExact" data-text="time"></time>
                 <template data-if="hasSha"><span class="ef-identifier" data-text="sha"></span></template>
               </div>
               <div class="ef-feed-item__actions">
@@ -227,11 +231,14 @@
 
     <!-- ===== Activity ===== -->
     <section class="app-screen" data-bind-hidden="hideActivity" hidden aria-label="Activity">
-      <fieldset class="ef-segmented app-filters">
+      <p class="app-screen-intro">A source-linked record of commits, pull requests, checks, and deployments.</p>
+      <fieldset class="ef-field app-filter-field">
         <legend class="ef-visually-hidden">Event type</legend>
+        <div class="ef-segmented app-filters" data-ef-motion-weight="light">
         <template data-each="filters" data-key="key">
           <label class="ef-segment"><input type="radio" name="activity-filter" data-event="filter" data-bind-checked="checked"><span data-text="label"></span></label>
         </template>
+        </div>
       </fieldset>
       <p class="app-meta" data-text="activityScope"></p>
       <template data-if="hasActivityError">
@@ -240,7 +247,7 @@
       <template data-if="activityLoading">
         <section class="ef-skeleton" aria-busy="true" aria-label="Loading activity"><span class="ef-visually-hidden">Loading activity</span><div class="ef-skeleton__line ef-skeleton__line--title"></div><div class="ef-skeleton__line"></div><div class="ef-skeleton__line ef-skeleton__line--short"></div></section>
       </template>
-      <ol class="app-feed" data-bind-hidden="noEventsList">
+      <ol class="app-feed app-feed--activity" data-bind-hidden="noEventsList">
         <template data-each="events" data-key="id">
           <li class="ef-feed-item app-event">
             <div class="ef-feed-item__primary">
@@ -249,7 +256,7 @@
             </div>
             <div class="ef-feed-item__meta">
               <template data-if="hasOutcome"><span class="ef-status-lozenge" data-bind-data-state="outcomeState" data-text="outcome"></span></template>
-              <time data-bind-datetime="timeIso" data-text="time"></time>
+              <time data-bind-datetime="timeIso" data-bind-title="timeExact" data-bind-aria-label="timeExact" data-text="time"></time>
               <template data-if="hasSha"><span class="ef-identifier" data-text="sha"></span></template>
             </div>
             <p class="ef-feed-item__summary" data-text="summary"></p>
@@ -277,6 +284,7 @@
 
     <!-- ===== Verification ===== -->
     <section class="app-screen" data-bind-hidden="hideVerification" hidden aria-label="Verification">
+      <p class="app-screen-intro">HEAD-bound checks, deployment evidence, requirements, and measurable engineering outcomes.</p>
       <article class="ef-surface app-card" aria-labelledby="v-head-title">
         <h2 id="v-head-title">Current HEAD <span class="ef-identifier" data-text="headSha"></span></h2>
         <p><span class="ef-status-lozenge" data-bind-data-state="headState" data-text="headLabel"></span></p>
@@ -457,20 +465,25 @@
         </ul>
       </section>
 
-      <section class="app-section" aria-labelledby="r-window-title">
+      <section class="ef-surface app-card app-control-panel" aria-labelledby="r-window-title">
         <h2 id="r-window-title">Time window</h2>
+        <p class="app-meta">Times are interpreted in this device’s local zone (<span data-text="zoneLabel"></span>). Native date and time pickers remain available.</p>
         <form class="ef-form app-window" novalidate>
+          <div class="ef-form-row app-window__fields">
           <div class="ef-field">
-            <label class="ef-field__label" for="replay-start">Start (<span data-text="zoneLabel"></span>)</label>
-            <input id="replay-start" type="datetime-local" data-event="replayStart" data-bind-value="replayStart">
+            <label class="ef-field__label" for="replay-start">Start</label>
+            <span class="ef-field__description" id="replay-start-help">First event time to include.</span>
+            <input id="replay-start" name="replay-start" type="datetime-local" aria-describedby="replay-start-help" data-event="replayStart" data-bind-value="replayStart">
           </div>
           <div class="ef-field">
-            <label class="ef-field__label" for="replay-end">End (<span data-text="zoneLabel"></span>)</label>
-            <input id="replay-end" type="datetime-local" data-event="replayEnd" data-bind-value="replayEnd">
+            <label class="ef-field__label" for="replay-end">End</label>
+            <span class="ef-field__description" id="replay-end-help">Last event time to include.</span>
+            <input id="replay-end" name="replay-end" type="datetime-local" aria-describedby="replay-end-help" data-event="replayEnd" data-bind-value="replayEnd">
           </div>
+          </div>
+          <div class="ef-actions"><button type="button" data-event="replayCompetition">Use the configured competition window</button></div>
         </form>
-        <div class="ef-actions"><button type="button" data-event="replayCompetition">Use the configured competition window</button></div>
-        <template data-if="hasReplayError"><p class="app-error" role="alert" data-text="replayError"></p></template>
+        <template data-if="hasReplayError"><p class="ef-validation-message app-error" id="replay-error" role="alert" data-text="replayError"></p></template>
       </section>
 
       <section class="app-section" aria-labelledby="r-ms-title">
@@ -498,11 +511,13 @@
       <section class="app-section" aria-labelledby="r-events-title">
         <h2 id="r-events-title">Events in the window</h2>
         <template data-if="replayPrompt"><p>Choose a start and end, or use the configured competition window.</p></template>
-        <fieldset class="ef-segmented app-filters">
+        <fieldset class="ef-field app-filter-field">
           <legend class="ef-visually-hidden">Replay event type</legend>
+          <div class="ef-segmented app-filters" data-ef-motion-weight="light">
           <template data-each="replayFilters" data-key="key">
             <label class="ef-segment"><input type="radio" name="replay-filter" data-event="replayFilter" data-bind-checked="checked"><span data-text="label"></span></label>
           </template>
+          </div>
         </fieldset>
         <p class="app-meta" data-text="replayCount"></p>
         <ol class="ef-timeline app-timeline" aria-label="Events in the selected window, oldest first" data-bind-hidden="noReplayEventsList">
@@ -510,7 +525,7 @@
             <li class="ef-timeline__item">
               <div class="ef-timeline__marker" aria-hidden="true"></div>
               <div class="ef-timeline__content">
-                <div class="ef-timeline__meta"><time data-bind-datetime="timeIso" data-text="time"></time><template data-if="hasOutcome"><span class="ef-status-lozenge" data-bind-data-state="outcomeState" data-text="outcome"></span></template></div>
+                <div class="ef-timeline__meta"><time data-bind-datetime="timeIso" data-bind-title="timeExact" data-bind-aria-label="timeExact" data-text="time"></time><template data-if="hasOutcome"><span class="ef-status-lozenge" data-bind-data-state="outcomeState" data-text="outcome"></span></template></div>
                 <h3 class="app-wrap"><span aria-hidden="true" data-text="glyph"></span> <span data-text="title"></span></h3>
                 <p class="app-meta"><span data-text="kind"></span> <span class="ef-identifier" data-text="sha"></span></p>
                 <template data-if="hasUrl"><a data-bind-href="url" data-bind-aria-label="linkLabel" target="_blank" rel="noopener noreferrer">View on GitHub</a></template>
@@ -533,19 +548,22 @@
         </div>
       </section>
 
-      <section class="app-section" data-bind-hidden="noSelection" aria-labelledby="s-comp-title">
+      <section class="ef-surface app-card app-control-panel" data-bind-hidden="noSelection" aria-labelledby="s-comp-title">
         <h2 id="s-comp-title">Competition clock for this repository</h2>
         <p class="app-meta">Planning configuration, not an observation. Specula never infers kickoff from commit times. Times use this device's time zone (<span data-text="zoneLabel"></span>).</p>
         <p data-text="kickoffSaved"></p>
         <form class="ef-form" data-event="saveCompetition" novalidate>
+          <div class="ef-form-row app-settings-fields">
           <div class="ef-field">
             <label class="ef-field__label" for="kickoff-input">Kickoff</label>
-            <input id="kickoff-input" type="datetime-local" data-event="kickoff" data-bind-value="kickoffValue">
+            <span class="ef-field__description" id="kickoff-help">Competition start in this device’s local time.</span>
+            <input id="kickoff-input" name="kickoff" type="datetime-local" aria-describedby="kickoff-help" data-event="kickoff" data-bind-value="kickoffValue">
           </div>
           <div class="ef-field">
             <label class="ef-field__label" for="duration-input">Duration (minutes)</label>
             <span class="ef-field__description" id="duration-help">Indy Init rehearsals used 420 minutes.</span>
-            <input id="duration-input" type="number" min="1" step="1" inputmode="numeric" aria-describedby="duration-help" data-event="duration" data-bind-value="durationValue">
+            <input id="duration-input" name="duration" type="number" min="1" step="1" inputmode="numeric" aria-describedby="duration-help" data-event="duration" data-bind-value="durationValue">
+          </div>
           </div>
           <div class="ef-actions">
             <button type="submit" class="app-primary">Save competition clock</button>
@@ -572,14 +590,18 @@
 
       <section class="app-section" aria-labelledby="s-theme-title">
         <h2 id="s-theme-title">Appearance</h2>
-        <div class="ef-field">
-          <label class="ef-field__label" for="theme-select">Theme</label>
-          <select id="theme-select" data-event="theme" data-bind-value="themeValue">
+        <label class="ef-select-field app-theme-field">
+          <span class="ef-field__label">Theme</span>
+          <span class="ef-select" data-ef-motion-weight="standard">
+          <select class="ef-select__input" id="theme-select" name="theme" aria-describedby="theme-help" data-event="theme" data-bind-value="themeValue">
             <option value="system">Match this device</option>
             <option value="light">Light</option>
             <option value="dark">Dark</option>
           </select>
-        </div>
+          <span class="ef-select__indicator" aria-hidden="true"></span>
+          </span>
+          <span class="ef-field__description" id="theme-help">Light is used for new visitors. Your explicit choice is saved in this browser.</span>
+        </label>
       </section>
 
       <section class="app-section" aria-labelledby="s-storage-title">
