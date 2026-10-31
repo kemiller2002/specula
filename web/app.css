@@ -247,6 +247,81 @@
     box-shadow: 0 0 0 var(--ef-primitive-focus-halo-width, 2px) var(--ef-color-focus-gap);
   }
 
+
+  /* Mobile visual hierarchy: keep the Echelon palette, quiet secondary controls,
+     and avoid the full-width inverse surface on the selected activity filter. */
+  .app-bar__actions > .ef-button,
+  .app-bar__actions > button,
+  .app-event .ef-button,
+  .app-event button {
+    border-color: var(--ef-color-border-functional);
+    background: var(--ef-color-surface-secondary);
+    color: var(--ef-color-text-primary);
+    font-weight: var(--ef-primitive-font-weight-semibold);
+  }
+  .app-bar__actions > .ef-button:hover,
+  .app-bar__actions > button:hover,
+  .app-event .ef-button:hover,
+  .app-event button:hover {
+    border-color: var(--ef-color-accent-primary);
+  }
+
+  /* A filter is navigation, not a primary call to action. The checked radio
+     remains native and keyboard-operable; only its visual label changes. */
+  .app-filters.ef-segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ef-primitive-space-2);
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+  .app-filters .ef-segment {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    background: var(--ef-color-surface-secondary);
+    border: var(--ef-primitive-border-width-thin) solid var(--ef-color-border-subtle);
+    color: var(--ef-color-text-primary);
+  }
+  .app-filters .ef-segment:has(input:checked) {
+    background: var(--ef-color-surface-secondary);
+    border-color: var(--ef-color-accent-primary);
+    color: var(--ef-color-text-primary);
+    box-shadow: inset 0 calc(-1 * var(--ef-primitive-border-width-accent)) 0 var(--ef-color-accent-primary);
+  }
+  .app-filters .ef-segment:has(input:checked) span {
+    background: transparent;
+    color: inherit;
+  }
+  .app-filters .ef-segment:has(input:focus-visible) {
+    outline: var(--ef-primitive-focus-ring-width, 3px) solid var(--ef-color-focus-ring);
+    outline-offset: var(--ef-primitive-focus-ring-offset, 2px);
+  }
+
+  /* Distinguish state by shape and text as well as hue. */
+  .app-status .ef-status-lozenge {
+    border-color: var(--ef-color-border-functional);
+  }
+  .app-event .ef-status-lozenge[data-state="danger"],
+  .app-event .ef-status-lozenge[data-state="failed"] {
+    border-color: var(--ef-color-status-danger);
+    color: var(--ef-color-status-danger);
+    font-weight: var(--ef-primitive-font-weight-semibold);
+  }
+  .app-event .ef-status-lozenge[data-state="attention"] {
+    border-color: var(--ef-color-status-warning);
+  }
+  @media (max-width: 30rem) {
+    .app-bar__actions > .ef-button,
+    .app-bar__actions > button {
+      padding-inline: var(--ef-primitive-space-3);
+    }
+    .app-filters .ef-segment {
+      flex: 1 1 calc(50% - var(--ef-primitive-space-2));
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   }
