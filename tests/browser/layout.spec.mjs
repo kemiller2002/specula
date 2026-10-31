@@ -145,3 +145,31 @@ test("accessibility basics: landmarks, labelled controls, one h1, live status", 
   await expect(page.locator("main")).toHaveCount(1);
   await expect(page.locator(".app-status")).toHaveAttribute("aria-live", "polite");
 });
+
+test("activity filters use a restrained selected state in dark mode", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await install(page, scenarios.failedHead);
+  await choose(page, "octo/demo");
+  await settled(page);
+  await page.goto("/#/activity");
+  const selected = page.locator(".app-filters .ef-segment:has(input:checked)");
+  await expect(selected).toHaveCount(1);
+  const colors = await selected.evaluate((el) => {
+    const label = getComputedStyle(el);
+    const page = getComputedStyle(document.querySelector(".app"));
+    const primary = getComputedStyle(document.querySelector(".app-primary"));
+    return {
+      selectedBackground: label.backgroundColor,
+      selectedText: label.color,
+      pageBackground: page.backgroundColor,
+      primaryBackground: primary.backgroundColor,
+      border: label.borderBottomColor,
+    };
+  });
+  // A selected filter must not inherit the large inverse/primary-button fill.
+  expect(colors.selectedBackground).not.toBe(colors.primaryBackground);
+  expect(colors.selectedBackground).not.toBe(colors.pageBackground);
+  expect(colors.border).not.toBe(colors.selectedBackground);
+  await page.screenshot({ path: testInfo.outputPath("activity-dark-filters-390.png"), fullPage: true });
+});
