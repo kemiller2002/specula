@@ -67,3 +67,14 @@ let ``a deploy job on HEAD counts as the deployment workflow, a smoke job does n
     Assert.Contains("job name: deploy", deploy.Detail)
     let none = Status.truthRows (Some head) Status.HeadPassing [] [ check 1L "build" head Passed; check 3L "deployed-smoke" head Passed ] [] Map.empty
     Assert.Equal("Not found", (none |> List.find (fun r -> r.Id = "deploy-workflow")).Value)
+
+[<Fact>]
+let ``a passing verdict from partial CI data is downgraded to unknown; failures stay`` () =
+    match Status.qualify [ "check runs" ] Status.HeadPassing with
+    | Status.HeadUnknown reason -> Assert.Contains("check runs could not be read", reason)
+    | other -> failwithf "unexpected %A" other
+    Assert.Equal(Status.HeadFailing, Status.qualify [ "check runs" ] Status.HeadFailing)
+    Assert.Equal(Status.HeadPassing, Status.qualify [] Status.HeadPassing)
+    match Status.qualify [ "workflow runs" ] (Status.HeadUnknown "No check runs or workflow runs were found for this commit.") with
+    | Status.HeadUnknown reason -> Assert.DoesNotContain("were found", reason)
+    | other -> failwithf "unexpected %A" other

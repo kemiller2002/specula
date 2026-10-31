@@ -221,3 +221,21 @@ let ``projection is total for every screen state`` () =
     let keys = View.project (Model.initial now TimeZoneInfo.Utc) |> Map.keys |> Set.ofSeq
     let loaded = View.project model |> Map.keys |> Set.ofSeq
     Assert.Equal<Set<string>>(keys, loaded)
+
+[<Fact>]
+let ``rate-limited check runs with a passing workflow run never show HEAD passing`` () =
+    let partial (url: string) =
+        if url.Contains "/check-runs" then
+            EffectOutcome.Success(403L, RawJson """{"message":"You have exceeded a secondary rate limit."}""", None)
+        elif url.Contains "/actions/runs" then
+            ok $"""{{"total_count":1,"workflow_runs":[{{"id":9,"name":"ci","head_sha":"{headSha}","status":"completed","conclusion":"success","run_attempt":1,"created_at":"2026-10-30T11:01:00Z","updated_at":"2026-10-30T11:05:00Z"}}]}}"""
+        else github url
+    let model = settle partial (boot (StorageOutcome.Success(Some """{"version":1,"selectedRepository":"octo/demo"}""")))
+    match model.Fetch with
+    | Partial _ -> ()
+    | other -> failwithf "expected partial, got %A" other
+    let view = View.project model
+    Assert.Equal(ViewValue.Text "Unknown", view.["headLabel"])
+    match view.["headDetail"] with
+    | ViewValue.Text d -> Assert.Contains("could not be read", d)
+    | other -> failwithf "unexpected %A" other

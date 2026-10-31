@@ -30,7 +30,9 @@ module Metrics =
           Deployments: Deployment list
           DeploymentStatuses: Map<int64, DeploymentStatus list>
           Requirements: Evidence.Requirement list option
-          Corrections: Evidence.Correction list option }
+          Corrections: Evidence.Correction list option
+          /// Set when the workflow-runs source could not be read.
+          RunsUnreadable: string option }
 
     let private completedAt (r: WorkflowRun) = r.UpdatedAt |> Option.orElse r.CreatedAt
 
@@ -179,12 +181,19 @@ module Metrics =
           Window = runsWindow inputs.Runs
           Provenance = "GitHub Actions workflow runs; evidence/defects.md when present" }
 
+    /// A metric derived from workflow runs is not measurable when they could
+    /// not be read: an empty list would otherwise read as "none observed".
+    let private requireRuns (inputs: Inputs) (m: Metric) : Metric =
+        match inputs.RunsUnreadable with
+        | Some reason -> { m with Value = None; Reason = $"Workflow runs could not be read ({reason}); this metric is not measurable from the last refresh." }
+        | None -> m
+
     let all (inputs: Inputs) : Metric list =
-        [ timeToFirstPassingCi inputs
+        [ timeToFirstPassingCi inputs |> requireRuns inputs
           timeToFirstDeployment inputs
-          failureToRecovery inputs
+          failureToRecovery inputs |> requireRuns inputs
           verifiedRequirementsPerHour inputs
-          correctionCycles inputs ]
+          correctionCycles inputs |> requireRuns inputs ]
 
     // ---- Milestones (planned vs observed) ----
 

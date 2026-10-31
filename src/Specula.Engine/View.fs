@@ -163,12 +163,21 @@ module View =
 
     // ---- verification helpers ----
 
+    /// CI sources whose last read failed (rate limited, offline, error).
+    let unreadableCi (s: Snapshot) : string list =
+        [ "HEAD check runs", "check runs"; "workflow runs", "workflow runs" ]
+        |> List.filter (fun (key, _) ->
+            match s.Endpoints |> Map.tryFind key with
+            | Some(EndpointFailed _) | Some EndpointRateLimited -> true
+            | _ -> false)
+        |> List.map snd
+
     let private headInfo (model: Model) (snapshot: Snapshot option) =
         let sha = snapshot |> Option.bind (fun s -> s.HeadSha)
         let commit = snapshot |> Option.bind (fun s -> sha |> Option.bind (fun h -> s.Commits |> List.tryFind (fun c -> c.Sha = h)))
         let verdict =
             match snapshot, sha with
-            | Some s, Some h -> Status.headVerdict h s.Runs s.HeadChecks
+            | Some s, Some h -> Status.headVerdict h s.Runs s.HeadChecks |> Status.qualify (unreadableCi s)
             | Some s, None when s.Endpoints |> Map.tryFind "commits" |> Option.exists (function EndpointEmpty _ -> true | _ -> false) ->
                 Status.HeadUnknown "The repository has no commits on its default branch."
             | _ -> Status.HeadUnknown "The HEAD commit has not been observed yet."
@@ -318,7 +327,14 @@ module View =
           Deployments = snapshot |> Option.map (fun s -> s.Deployments) |> Option.defaultValue []
           DeploymentStatuses = snapshot |> Option.map (fun s -> s.DeploymentStatuses) |> Option.defaultValue Map.empty
           Requirements = snapshot |> Option.bind (fun s -> Evidence.requirements s.Evidence)
-          Corrections = snapshot |> Option.bind (fun s -> Evidence.corrections s.Evidence) }
+          Corrections = snapshot |> Option.bind (fun s -> Evidence.corrections s.Evidence)
+          RunsUnreadable =
+            snapshot
+            |> Option.bind (fun s ->
+                match s.Endpoints |> Map.tryFind "workflow runs" with
+                | Some(EndpointFailed r) -> Some r
+                | Some EndpointRateLimited -> Some "rate limited"
+                | _ -> None) }
 
     let private efficiency (model: Model) (snapshot: Snapshot option) : Entry list =
         let metrics = if snapshot.IsSome then Metrics.all (metricInputs model snapshot) else []
@@ -499,6 +515,10 @@ module View =
           f "hasHeadChecks" (not checkItems.IsEmpty)
           f "noHeadChecksList" checkItems.IsEmpty
           f "noHeadChecks" (checkItems.IsEmpty && snapshot.IsSome)
+          t "noChecksText"
+              (match snapshot |> Option.map unreadableCi with
+               | Some(_ :: _ as sources) -> String.Join(" and ", sources) + " could not be read in the last refresh, so HEAD checks are unknown."
+               | _ -> "No check runs or workflow runs were found for the current HEAD commit.")
           t "checksScope"
               (match snapshot with
                | Some s when s.ChecksTotal |> Option.exists (fun total -> total > int64 (List.length s.HeadChecks)) ->
