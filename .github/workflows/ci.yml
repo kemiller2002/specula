@@ -1,0 +1,159 @@
+name: specula
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: specula-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-and-test:
+    name: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Verify vendored Limen packages against the release checksums
+        run: cd vendor/nuget && sha256sum -c checksums.txt
+      - name: Install WebAssembly workload
+        run: dotnet workload install wasm-tools --skip-manifest-update
+      - name: Install npm dependencies (lockfile)
+        run: npm ci
+      - name: Dependency baseline matches the build
+        run: npm run check:deps
+      - name: Color contract (pinned Forma)
+        run: npm run check:colors
+      - name: F# unit tests
+        run: dotnet test tests/Specula.Engine.Tests --logger "trx;LogFileName=unit.trx" --logger "console;verbosity=normal" --results-directory test-results/unit
+      - name: Build static site
+        env:
+          SPECULA_SOURCE_SHA: ${{ github.sha }}
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser acceptance (fixtures)
+        run: npx playwright test
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: specula-test-evidence
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
+      - name: Upload site
+        uses: actions/upload-artifact@v4
+        with:
+          name: specula-dist
+          path: dist/
+          retention-days: 7
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  live-github:
+    name: live-github
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: specula-dist
+          path: dist/
+      - run: npx playwright install --with-deps chromium
+      - name: Live GitHub integration (local build, real public API)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npx playwright test --config playwright.live.config.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: specula-live-evidence
+          path: test-results/
+          retention-days: 30
+
+  deploy:
+    name: deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build-and-test, live-github]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  deployed-smoke:
+    name: deployed-smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SPECULA_URL: https://specula.echelonfoundry.com/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Wait for this commit to be served
+        run: |
+          for i in $(seq 1 60); do
+            served="$(curl -fsS "${SPECULA_URL}build.json?nocache=$RANDOM" | node -p 'JSON.parse(require("fs").readFileSync(0)).sourceSha' || true)"
+            echo "served: ${served}"
+            [ "${served}" = "${GITHUB_SHA}" ] && exit 0
+            sleep 10
+          done
+          echo "Deployed site never served ${GITHUB_SHA}"; exit 1
+      - name: Check WebAssembly content type
+        run: |
+          wasm="$(curl -fsS "${SPECULA_URL}_framework/dotnet.js" | grep -o 'dotnet\.native\.[a-z0-9]*\.wasm' | head -1)"
+          curl -fsSI "${SPECULA_URL}_framework/${wasm}" | tee /dev/stderr | grep -i '^content-type: application/wasm'
+      - run: npx playwright install --with-deps chromium
+      - name: Smoke test the deployed application with live GitHub data
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SPECULA_EXPECT_SHA: ${{ github.sha }}
+          SPECULA_EXPECT_PULLS: "1"
+          SPECULA_EXPECT_CHECKS: "1"
+        run: npx playwright test --config playwright.live.config.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: specula-deployed-smoke-evidence
+          path: test-results/
+          retention-days: 30

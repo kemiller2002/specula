@@ -1,0 +1,27 @@
+{
+  "name": "specula",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Specula: Echelon Foundry's independent, read-only observer for autonomous software engineering.",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "test:unit": "dotnet test tests/Specula.Engine.Tests",
+    "test:browser": "playwright test",
+    "test:live": "playwright test --config playwright.live.config.mjs",
+    "serve": "node scripts/serve.mjs dist 4173",
+    "check:deps": "node scripts/check-dependencies.mjs",
+    "check:colors": "node scripts/check-colors.mjs"
+  },
+  "dependencies": {
+    "@echelon-foundry/design-system": "0.13.0",
+    "@echelon-foundry/limen": "0.9.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

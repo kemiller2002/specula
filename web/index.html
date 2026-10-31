@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Specula: Echelon Foundry's independent, read-only observer for autonomous software engineering.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <title data-text="documentTitle">Specula</title>
+  <link rel="stylesheet" href="forma/tokens.css?v=__BUILD__">
+  <link rel="stylesheet" href="forma/foundations.css?v=__BUILD__">
+  <link rel="stylesheet" href="forma/components.css?v=__BUILD__">
+  <link rel="stylesheet" href="forma/brands/echelon.css?v=__BUILD__">
+  <link rel="stylesheet" href="app.css?v=__BUILD__">
+  <script type="module" src="main.js?v=__BUILD__"></script>
+</head>
+<body data-ef-type="application">
+<div class="app" data-ef-brand="echelon" data-bind-data-ef-theme="theme">
+  <a class="ef-skip-link" href="#main">Skip to main content</a>
+
+  <header class="app-header">
+    <div class="app-bar">
+      <a class="app-brand" href="#/overview" aria-label="Specula overview">Specula</a>
+      <div class="app-repo" data-bind-hidden="noSelection">
+        <span class="app-repo__label" aria-hidden="true">Observing</span>
+        <a class="app-repo__name ef-identifier" data-bind-href="repoUrl" data-bind-aria-label="repoLabel" data-text="repoText" rel="noopener noreferrer" target="_blank"></a>
+      </div>
+      <div class="app-bar__actions" data-bind-hidden="noSelection">
+        <a class="ef-button" href="#/select">Switch repository</a>
+        <button type="button" data-event="refresh" data-bind-disabled="refreshDisabled" data-bind-aria-busy="refreshBusy" data-text="refreshLabel">Refresh</button>
+      </div>
+    </div>
+    <p class="app-status" role="status" aria-live="polite" data-bind-hidden="noSelection">
+      <span class="ef-status-lozenge" data-bind-data-state="fetchState" data-text="fetchLabel"></span>
+      <span class="app-status__detail" data-text="fetchDetail"></span>
+    </p>
+    <nav class="app-nav" aria-label="Primary" data-bind-hidden="noSelection">
+      <a href="#/overview" data-bind-aria-current="navOverview">Overview</a>
+      <a href="#/activity" data-bind-aria-current="navActivity">Activity</a>
+      <a href="#/verification" data-bind-aria-current="navVerification">Verify</a>
+      <a href="#/replay" data-bind-aria-current="navReplay">Replay</a>
+    </nav>
+  </header>
+
+  <main id="main" class="app-main" tabindex="-1">
+    <div class="app-boot" data-bind-hidden="bootDone">
+      <p class="ef-spinner" role="status"><span class="ef-spinner__indicator" aria-hidden="true"></span><span class="ef-spinner__label">Starting Specula…</span></p>
+      <noscript><p>Specula needs JavaScript and WebAssembly to read GitHub data in your browser.</p></noscript>
+      <div id="boot-failure" class="ef-alert" data-tone="danger" role="alert" hidden>
+        <div class="ef-alert__icon" aria-hidden="true">×</div>
+        <div><h2 class="ef-alert__title">Specula could not start</h2><p>The WebAssembly runtime failed to load. Reload the page; if this persists, the browser may not support WebAssembly.</p></div>
+      </div>
+    </div>
+
+    <h1 class="app-title" data-text="screenTitle" data-bind-hidden="starting">Specula</h1>
+
+    <template data-if="hasStorageNotice">
+      <div class="ef-alert app-notice" role="status" data-tone="attention">
+        <div class="ef-alert__icon" aria-hidden="true">!</div>
+        <div><p data-text="storageNotice"></p></div>
+        <button type="button" data-event="dismiss">Dismiss</button>
+      </div>
+    </template>
+    <template data-if="hasNotice">
+      <div class="ef-alert app-notice" role="status" data-tone="attention">
+        <div class="ef-alert__icon" aria-hidden="true">!</div>
+        <div><p data-text="notice"></p></div>
+        <button type="button" data-event="dismiss">Dismiss</button>
+      </div>
+    </template>
+
+    <!-- ===== Repository picker ===== -->
+    <section class="app-screen" data-bind-hidden="hidePicker" hidden aria-label="Choose a repository">
+      <p class="app-lead">Observe a public GitHub repository. Specula does not change it.</p>
+      <form class="ef-form app-picker" data-event="observe" novalidate>
+        <div class="ef-field">
+          <label class="ef-field__label" for="repo-input">GitHub repository</label>
+          <span class="ef-field__description" id="repo-help">Enter owner/repo or https://github.com/owner/repo. Only public repositories are supported.</span>
+          <input id="repo-input" name="repository" type="text" inputmode="url" placeholder="owner/repo" autocomplete="off" autocapitalize="none" spellcheck="false"
+                 aria-describedby="repo-help repo-error" data-event="draft" data-on="input" data-bind-value="draft" data-bind-aria-invalid="draftInvalid">
+          <template data-if="hasDraftError">
+            <p class="ef-validation-message app-error" id="repo-error" role="alert" data-text="draftError"></p>
+          </template>
+        </div>
+        <div class="ef-actions">
+          <button type="submit" class="app-primary" data-bind-disabled="observeDisabled" data-text="observeLabel">Observe repository</button>
+        </div>
+        <p class="app-meta" role="status" aria-live="polite" data-text="pickerStatus"></p>
+      </form>
+      <section class="app-section" data-bind-hidden="noRecent" aria-labelledby="recent-title">
+        <h2 id="recent-title">Recent repositories</h2>
+        <ul class="app-chips">
+          <template data-each="recent" data-key="key">
+            <li><button type="button" data-event="recent" data-text="label" data-bind-aria-label="aria"></button></li>
+          </template>
+        </ul>
+      </section>
+      <section class="app-section" data-bind-hidden="noSelection" aria-labelledby="current-title">
+        <h2 id="current-title">Current repository</h2>
+        <p>Specula is observing <span class="ef-identifier" data-text="repoText"></span>. Choosing another repository replaces it; if the new one cannot be read, this selection is kept.</p>
+        <div class="ef-actions">
+          <a class="ef-button" href="#/overview">Back to overview</a>
+          <button type="button" data-event="forget">Forget repository</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- ===== Overview ===== -->
+    <section class="app-screen" data-bind-hidden="hideOverview" hidden aria-label="Overview">
+      <template data-if="hasShared">
+        <div class="ef-alert app-notice" role="status" data-tone="attention">
+          <div class="ef-alert__icon" aria-hidden="true">!</div>
+          <div><p data-text="sharedText"></p></div>
+          <button type="button" data-event="saveShared">Make this my repository</button>
+        </div>
+      </template>
+
+      <article class="ef-surface app-card" aria-labelledby="ov-head-title">
+        <h2 id="ov-head-title">Current HEAD</h2>
+        <dl class="ef-key-value-list app-facts">
+          <div><dt>Repository</dt><dd><span class="ef-identifier" data-text="repoText"></span></dd></div>
+          <div><dt>Branch</dt><dd><span class="ef-identifier" data-text="branch"></span></dd></div>
+          <div><dt>HEAD commit</dt><dd><a class="ef-identifier" data-bind-href="headUrl" data-text="headSha" target="_blank" rel="noopener noreferrer"></a> <span class="app-subject" data-text="headMessage"></span></dd></div>
+          <div><dt>Committed</dt><dd data-text="headDate"></dd></div>
+        </dl>
+        <div class="app-strip">
+          <h3>Current HEAD checks</h3>
+          <p><span class="ef-status-lozenge" data-bind-data-state="headState" data-text="headLabel"></span></p>
+          <p data-text="headDetail"></p>
+          <p class="app-meta">Observed <span data-text="headObserved"></span></p>
+          <template data-if="hasOlderPass">
+            <p class="app-warning"><span class="ef-status-lozenge" data-state="attention">Not HEAD</span> <span data-text="olderPass"></span> <a data-bind-href="olderPassUrl" target="_blank" rel="noopener noreferrer">View that run</a></p>
+          </template>
+        </div>
+        <div class="app-strip">
+          <h3>Evidence coverage</h3>
+          <p><span class="ef-status-lozenge" data-bind-data-state="coverageState" data-text="coverageLabel"></span></p>
+          <p data-text="coverageDetail"></p>
+        </div>
+      </article>
+
+      <article class="ef-surface app-card" aria-labelledby="ov-attention-title">
+        <h2 id="ov-attention-title">Needs attention</h2>
+        <ul class="app-list" data-bind-hidden="noAttentionList">
+          <template data-each="attention" data-key="id">
+            <li><span class="ef-status-lozenge" data-bind-data-state="state" data-text="label"></span> <span class="app-wrap" data-text="text"></span></li>
+          </template>
+        </ul>
+        <template data-if="noAttention"><p>Nothing in the loaded data needs attention. This is not a verification claim.</p></template>
+      </article>
+
+      <div class="app-dimensions">
+        <article class="ef-surface app-card app-dimension" aria-labelledby="dim-activity">
+          <h2 id="dim-activity">Activity: What happened?</h2>
+          <p data-text="activitySummary"></p>
+          <p class="app-meta" data-text="activityWindow"></p>
+          <p class="app-meta" data-text="activityCoverage"></p>
+          <a href="#/activity">See activity evidence</a>
+        </article>
+        <article class="ef-surface app-card app-dimension" aria-labelledby="dim-verification">
+          <h2 id="dim-verification">Verification: What passed?</h2>
+          <p><span class="ef-status-lozenge" data-bind-data-state="dimensionHeadState" data-text="headLabel"></span></p>
+          <p data-text="verificationSummary"></p>
+          <p class="app-meta" data-text="verificationCoverage"></p>
+          <a href="#/verification">See verification evidence</a>
+        </article>
+        <article class="ef-surface app-card app-dimension" aria-labelledby="dim-efficiency">
+          <h2 id="dim-efficiency">Efficiency: What measurable progress was achieved?</h2>
+          <p data-text="efficiencySummary"></p>
+          <p class="app-meta" data-text="efficiencyCoverage"></p>
+          <a href="#/verification">See metric definitions and evidence</a>
+        </article>
+      </div>
+
+      <section class="app-section" aria-labelledby="ov-metrics-title">
+        <h2 id="ov-metrics-title">Observed counts</h2>
+        <ul class="app-metrics">
+          <template data-each="metrics" data-key="id">
+            <li class="ef-metric-card">
+              <div class="ef-metric-card__label" data-text="label"></div>
+              <div class="ef-metric-card__value" data-text="value"></div>
+              <p class="app-meta" data-text="scope"></p>
+              <a data-bind-href="href">Open records</a>
+            </li>
+          </template>
+        </ul>
+      </section>
+
+      <section class="app-section" data-bind-hidden="hideClock" aria-labelledby="ov-clock-title">
+        <h2 id="ov-clock-title">Build window (configured)</h2>
+        <dl class="ef-key-value-list app-facts">
+          <div><dt>Kickoff</dt><dd data-text="clockKickoff"></dd></div>
+          <div><dt>Deadline</dt><dd data-text="clockDeadline"></dd></div>
+          <div><dt>Elapsed</dt><dd data-text="clockElapsed"></dd></div>
+          <div><dt>Remaining</dt><dd data-text="clockRemaining"></dd></div>
+        </dl>
+        <p class="app-meta" data-text="clockAsOf"></p>
+        <a href="#/replay">Planned versus observed milestones</a>
+      </section>
+
+      <section class="app-section" aria-labelledby="ov-recent-title">
+        <h2 id="ov-recent-title">Recent activity</h2>
+        <ol class="app-feed" data-bind-hidden="noRecentEvents">
+          <template data-each="recentEvents" data-key="id">
+            <li class="ef-feed-item app-event">
+              <div class="ef-feed-item__primary">
+                <p class="ef-feed-item__source"><span aria-hidden="true" data-text="glyph"></span> <span data-text="kind"></span></p>
+                <h3 class="app-wrap" data-text="title"></h3>
+              </div>
+              <div class="ef-feed-item__meta">
+                <template data-if="hasOutcome"><span class="ef-status-lozenge" data-bind-data-state="outcomeState" data-text="outcome"></span></template>
+                <time data-bind-datetime="timeIso" data-text="time"></time>
+                <template data-if="hasSha"><span class="ef-identifier" data-text="sha"></span></template>
+              </div>
+              <div class="ef-feed-item__actions">
+                <template data-if="hasUrl"><a data-bind-href="url" data-bind-aria-label="linkLabel" target="_blank" rel="noopener noreferrer">View on GitHub</a></template>
+              </div>
+            </li>
+          </template>
+        </ol>
+        <p data-bind-hidden="hasRecentEvents">No activity found in the loaded window.</p>
+        <a href="#/activity">See all activity</a>
+      </section>
+    </section>
+
+    <!-- ===== Activity ===== -->
+    <section class="app-screen" data-bind-hidden="hideActivity" hidden aria-label="Activity">
+      <fieldset class="ef-segmented app-filters">
+        <legend class="ef-visually-hidden">Event type</legend>
+        <template data-each="filters" data-key="key">
+          <label class="ef-segment"><input type="radio" name="activity-filter" data-event="filter" data-bind-checked="checked"><span data-text="label"></span></label>
+        </template>
+      </fieldset>
+      <p class="app-meta" data-text="activityScope"></p>
+      <template data-if="hasActivityError">
+        <p class="app-warning" role="status"><span class="ef-status-lozenge" data-state="attention">Partial</span> <span data-text="activityError"></span></p>
+      </template>
+      <template data-if="activityLoading">
+        <section class="ef-skeleton" aria-busy="true" aria-label="Loading activity"><span class="ef-visually-hidden">Loading activity</span><div class="ef-skeleton__line ef-skeleton__line--title"></div><div class="ef-skeleton__line"></div><div class="ef-skeleton__line ef-skeleton__line--short"></div></section>
+      </template>
+      <ol class="app-feed" data-bind-hidden="noEventsList">
+        <template data-each="events" data-key="id">
+          <li class="ef-feed-item app-event">
+            <div class="ef-feed-item__primary">
+              <p class="ef-feed-item__source"><span aria-hidden="true" data-text="glyph"></span> <span data-text="kind"></span></p>
+              <h3 class="app-wrap" data-text="title"></h3>
+            </div>
+            <div class="ef-feed-item__meta">
+              <template data-if="hasOutcome"><span class="ef-status-lozenge" data-bind-data-state="outcomeState" data-text="outcome"></span></template>
+              <time data-bind-datetime="timeIso" data-text="time"></time>
+              <template data-if="hasSha"><span class="ef-identifier" data-text="sha"></span></template>
+            </div>
+            <p class="ef-feed-item__summary" data-text="summary"></p>
+            <div class="ef-feed-item__actions">
+              <template data-if="hasUrl"><a data-bind-href="url" data-bind-aria-label="linkLabel" target="_blank" rel="noopener noreferrer">View on GitHub</a></template>
+              <button type="button" data-event="toggle" data-bind-aria-expanded="expandedAttr" data-text="toggleLabel"></button>
+            </div>
+            <template data-if="expanded">
+              <dl class="ef-key-value-list app-detail">
+                <div><dt>Source record</dt><dd><span class="ef-identifier" data-text="id"></span></dd></div>
+                <div><dt>Event time (UTC)</dt><dd><span class="ef-identifier" data-text="utc"></span></dd></div>
+                <div><dt>Observed</dt><dd data-text="observed"></dd></div>
+                <div><dt>Commit SHA</dt><dd><span class="ef-identifier" data-text="shaFull"></span></dd></div>
+                <div><dt>Attribution</dt><dd data-text="actor"></dd></div>
+              </dl>
+            </template>
+          </li>
+        </template>
+      </ol>
+      <template data-if="noEvents"><section class="ef-empty-state"><div class="ef-empty-state__symbol" aria-hidden="true">□</div><h2 data-text="noEventsText"></h2><p>Nothing was returned for this filter in the loaded records. This does not mean nothing happened.</p></section></template>
+      <div class="ef-actions" data-bind-hidden="cannotLoadMore">
+        <button type="button" data-event="more" data-bind-disabled="moreDisabled" data-text="moreLabel">Load older commits</button>
+      </div>
+    </section>
+
+    <!-- ===== Verification ===== -->
+    <section class="app-screen" data-bind-hidden="hideVerification" hidden aria-label="Verification">
+      <article class="ef-surface app-card" aria-labelledby="v-head-title">
+        <h2 id="v-head-title">Current HEAD <span class="ef-identifier" data-text="headSha"></span></h2>
+        <p><span class="ef-status-lozenge" data-bind-data-state="headState" data-text="headLabel"></span></p>
+        <p data-text="headDetail"></p>
+        <template data-if="hasOlderPass">
+          <p class="app-warning"><span class="ef-status-lozenge" data-state="attention">Not HEAD</span> <span data-text="olderPass"></span></p>
+        </template>
+      </article>
+
+      <section class="app-section" aria-labelledby="v-blockers-title">
+        <h2 id="v-blockers-title">Failures and blockers</h2>
+        <ul class="app-list" data-bind-hidden="noBlockersList">
+          <template data-each="blockers" data-key="id">
+            <li><span class="ef-status-lozenge" data-bind-data-state="state" data-text="label"></span> <span class="app-wrap" data-text="text"></span></li>
+          </template>
+        </ul>
+        <template data-if="noBlockers"><p>No failing HEAD checks or failed/blocked requirements in the loaded evidence.</p></template>
+      </section>
+
+      <section class="app-section" aria-labelledby="v-truth-title">
+        <h2 id="v-truth-title">Build, deployment and application</h2>
+        <p class="app-meta">Each row is judged separately. A green build or deployment never implies the application was opened and tested.</p>
+        <ul class="app-rows">
+          <template data-each="truth" data-key="id">
+            <li class="ef-surface app-row">
+              <h3 data-text="label"></h3>
+              <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="value"></span></p>
+              <p class="app-wrap" data-text="detail"></p>
+              <template data-if="hasUrl"><a class="app-wrap" data-bind-href="url" target="_blank" rel="noopener noreferrer">Source record</a></template>
+            </li>
+          </template>
+        </ul>
+      </section>
+
+      <section class="app-section" aria-labelledby="v-checks-title">
+        <h2 id="v-checks-title">HEAD checks and workflow runs</h2>
+        <p class="app-meta" data-text="checksScope"></p>
+        <ul class="app-rows" data-bind-hidden="noHeadChecksList">
+          <template data-each="headChecks" data-key="id">
+            <li class="app-row app-row--plain">
+              <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="outcome"></span> <strong class="app-wrap" data-text="name"></strong></p>
+              <p class="app-meta"><span data-text="kind"></span> · <span data-text="time"></span> · <a data-bind-href="url" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
+            </li>
+          </template>
+        </ul>
+        <template data-if="noHeadChecks"><p><span class="ef-status-lozenge" data-state="unknown">Unknown</span> No check runs or workflow runs were found for the current HEAD commit.</p></template>
+      </section>
+
+      <section class="app-section" aria-labelledby="v-req-title">
+        <h2 id="v-req-title">Requirements</h2>
+        <template data-if="noRequirements"><p><span class="ef-status-lozenge" data-state="unknown">Unavailable</span> <span data-text="requirementsUnavailable"></span></p></template>
+        <div data-bind-hidden="noRequirements">
+          <p class="app-meta app-wrap" data-text="requirementsScope"></p>
+          <ul class="app-counts">
+            <template data-each="requirementCounts" data-key="id">
+              <li><span class="ef-status-lozenge" data-bind-data-state="state" data-text="label"></span> <strong data-text="count"></strong></li>
+            </template>
+          </ul>
+          <details class="ef-disclosure app-details">
+            <summary>Show each requirement (failures and blockers first)</summary>
+            <ul class="app-rows">
+              <template data-each="requirements" data-key="id">
+                <li class="app-row app-row--plain">
+                  <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="label"></span> <span class="ef-identifier" data-text="id"></span> <strong class="app-wrap" data-text="title"></strong></p>
+                  <p class="app-meta" data-text="raw"></p>
+                  <p class="app-wrap" data-text="evidence"></p>
+                  <template data-if="hasNote"><p class="app-meta app-wrap" data-text="note"></p></template>
+                  <a data-bind-href="url" target="_blank" rel="noopener noreferrer">Source file</a>
+                </li>
+              </template>
+            </ul>
+          </details>
+          <a data-bind-href="requirementsUrl" target="_blank" rel="noopener noreferrer">Open evidence/traceability.json on GitHub</a>
+        </div>
+        <div data-bind-hidden="noAcceptance">
+          <h3>Acceptance ledger (recorded by the implementing agent, not an acceptance verdict)</h3>
+          <ul class="app-rows">
+            <template data-each="acceptance" data-key="id">
+              <li class="app-row app-row--plain">
+                <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="label"></span> <span class="ef-identifier" data-text="id"></span> <span data-text="requirement"></span></p>
+                <p class="app-meta app-wrap" data-text="note"></p>
+              </li>
+            </template>
+          </ul>
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="v-dec-title">
+        <h2 id="v-dec-title">Decisions and corrections</h2>
+        <template data-if="noDecisions"><p>No supported decision evidence found.</p></template>
+        <details class="ef-disclosure app-details" data-bind-hidden="noDecisions">
+          <summary>Recorded decisions</summary>
+          <ul class="app-rows">
+            <template data-each="decisions" data-key="id">
+              <li class="app-row app-row--plain">
+                <p><span class="ef-identifier" data-text="id"></span> <strong class="app-wrap" data-text="text"></strong></p>
+                <p class="app-meta app-wrap">Why: <span data-text="why"></span></p>
+                <p class="app-meta app-wrap">Effect: <span data-text="effect"></span></p>
+                <a data-bind-href="url" target="_blank" rel="noopener noreferrer">Source file</a>
+              </li>
+            </template>
+          </ul>
+        </details>
+        <template data-if="noCorrections"><p>No supported correction evidence found.</p></template>
+        <details class="ef-disclosure app-details" data-bind-hidden="noCorrections">
+          <summary>Recorded defects and their corrections</summary>
+          <ul class="app-rows">
+            <template data-each="corrections" data-key="id">
+              <li class="app-row app-row--plain">
+                <p><span class="ef-identifier" data-text="id"></span> <strong class="app-wrap" data-text="defect"></strong></p>
+                <p class="app-meta app-wrap">Found by: <span data-text="foundBy"></span></p>
+                <p class="app-meta app-wrap">Fix: <span data-text="fix"></span></p>
+                <p class="app-meta app-wrap">Guard: <span data-text="guard"></span></p>
+                <a data-bind-href="url" target="_blank" rel="noopener noreferrer">Source file</a>
+              </li>
+            </template>
+          </ul>
+        </details>
+      </section>
+
+      <section class="app-section" id="efficiency" aria-labelledby="v-eff-title">
+        <h2 id="v-eff-title">Efficiency metrics</h2>
+        <p class="app-meta">Definitions <span data-text="metricsVersion"></span>. Each metric states its definition, denominator, window and provenance. Commit counts are never used as productivity.</p>
+        <ul class="app-rows">
+          <template data-each="efficiency" data-key="id">
+            <li class="ef-surface app-row">
+              <h3 data-text="name"></h3>
+              <p class="app-value" data-text="value"></p>
+              <p class="app-wrap" data-text="reason"></p>
+              <dl class="ef-key-value-list app-detail">
+                <div><dt>Definition</dt><dd data-text="definition"></dd></div>
+                <div><dt>Denominator</dt><dd data-text="denominator"></dd></div>
+                <div><dt>Window</dt><dd data-text="window"></dd></div>
+                <div><dt>Provenance</dt><dd data-text="provenance"></dd></div>
+              </dl>
+            </li>
+          </template>
+        </ul>
+      </section>
+
+      <section class="app-section" aria-labelledby="v-src-title">
+        <h2 id="v-src-title">Evidence sources</h2>
+        <p class="app-meta">Only these allowlisted paths are read at the HEAD commit (adapters <span data-text="adapterVersion"></span>). Nothing else in the repository is scanned.</p>
+        <ul class="app-rows">
+          <template data-each="evidenceSources" data-key="id">
+            <li class="app-row app-row--plain">
+              <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="label"></span> <span class="ef-identifier" data-text="path"></span></p>
+              <p class="app-meta app-wrap"><span data-text="description"></span> · schema <span data-text="schema"></span></p>
+              <template data-if="hasUrl"><a data-bind-href="url" target="_blank" rel="noopener noreferrer">View file on GitHub</a></template>
+            </li>
+          </template>
+        </ul>
+      </section>
+    </section>
+
+    <!-- ===== Replay ===== -->
+    <section class="app-screen" data-bind-hidden="hideReplay" hidden aria-label="Replay">
+      <p class="app-note">Specula is pre-existing observation infrastructure; it did not build this application. Replay is derived from available GitHub records, not a complete record of agent reasoning or local work.</p>
+      <div class="ef-actions">
+        <button type="button" data-event="presentation" data-bind-aria-pressed="presentationPressed" data-text="presentationLabel">Presentation view</button>
+      </div>
+
+      <section class="ef-surface app-card app-presentation" data-bind-hidden="notPresentation" aria-labelledby="p-title">
+        <h2 id="p-title">Presentation: build summary</h2>
+        <p><span class="ef-status-lozenge" data-bind-data-state="presentHeadState" data-text="headLabel"></span> <span data-text="presentHead"></span></p>
+        <h3>Failures and fixes</h3>
+        <ul class="app-list" data-bind-hidden="noPresentFixes">
+          <template data-each="presentFixes" data-key="id">
+            <li><span class="app-wrap" data-text="text"></span> <a data-bind-href="failedUrl" target="_blank" rel="noopener noreferrer">failed run</a> · <a data-bind-href="passedUrl" target="_blank" rel="noopener noreferrer">passing run</a></li>
+          </template>
+        </ul>
+        <template data-if="noPresentFixes"><p>No failure-then-recovery sequence in the loaded workflow runs.</p></template>
+        <h3>Final verification</h3>
+        <ul class="app-list">
+          <template data-each="truth" data-key="id">
+            <li><span class="ef-status-lozenge" data-bind-data-state="state" data-text="value"></span> <strong data-text="label"></strong> <span class="app-wrap" data-text="detail"></span></li>
+          </template>
+        </ul>
+      </section>
+
+      <section class="app-section" aria-labelledby="r-window-title">
+        <h2 id="r-window-title">Time window</h2>
+        <form class="ef-form app-window" novalidate>
+          <div class="ef-field">
+            <label class="ef-field__label" for="replay-start">Start (<span data-text="zoneLabel"></span>)</label>
+            <input id="replay-start" type="datetime-local" data-event="replayStart" data-bind-value="replayStart">
+          </div>
+          <div class="ef-field">
+            <label class="ef-field__label" for="replay-end">End (<span data-text="zoneLabel"></span>)</label>
+            <input id="replay-end" type="datetime-local" data-event="replayEnd" data-bind-value="replayEnd">
+          </div>
+        </form>
+        <div class="ef-actions"><button type="button" data-event="replayCompetition">Use the configured competition window</button></div>
+        <template data-if="hasReplayError"><p class="app-error" role="alert" data-text="replayError"></p></template>
+      </section>
+
+      <section class="app-section" aria-labelledby="r-ms-title">
+        <h2 id="r-ms-title">Milestones: planned versus observed</h2>
+        <template data-if="noClock"><p>No kickoff is configured, so planned checkpoints and “first” milestones cannot be placed. <a href="#/settings">Configure the competition clock</a>.</p></template>
+        <dl class="ef-key-value-list app-facts" data-bind-hidden="hideClock">
+          <div><dt>Kickoff</dt><dd data-text="clockKickoff"></dd></div>
+          <div><dt>Deadline</dt><dd data-text="clockDeadline"></dd></div>
+          <div><dt>Elapsed</dt><dd data-text="clockElapsed"></dd></div>
+          <div><dt>Remaining</dt><dd data-text="clockRemaining"></dd></div>
+        </dl>
+        <ul class="app-rows">
+          <template data-each="milestones" data-key="id">
+            <li class="app-row app-milestone">
+              <h3 data-text="label"></h3>
+              <p class="app-planned"><span class="app-lane">Planned</span> <span data-text="planned"></span></p>
+              <p><span class="app-lane">Observed</span> <span class="ef-status-lozenge" data-bind-data-state="state" data-text="observed"></span></p>
+              <p class="app-meta app-wrap" data-text="source"></p>
+              <template data-if="hasUrl"><a data-bind-href="url" target="_blank" rel="noopener noreferrer">Source record</a></template>
+            </li>
+          </template>
+        </ul>
+      </section>
+
+      <section class="app-section" aria-labelledby="r-events-title">
+        <h2 id="r-events-title">Events in the window</h2>
+        <template data-if="replayPrompt"><p>Choose a start and end, or use the configured competition window.</p></template>
+        <fieldset class="ef-segmented app-filters">
+          <legend class="ef-visually-hidden">Replay event type</legend>
+          <template data-each="replayFilters" data-key="key">
+            <label class="ef-segment"><input type="radio" name="replay-filter" data-event="replayFilter" data-bind-checked="checked"><span data-text="label"></span></label>
+          </template>
+        </fieldset>
+        <p class="app-meta" data-text="replayCount"></p>
+        <ol class="ef-timeline app-timeline" aria-label="Events in the selected window, oldest first" data-bind-hidden="noReplayEventsList">
+          <template data-each="replayEvents" data-key="id">
+            <li class="ef-timeline__item">
+              <div class="ef-timeline__marker" aria-hidden="true"></div>
+              <div class="ef-timeline__content">
+                <div class="ef-timeline__meta"><time data-bind-datetime="timeIso" data-text="time"></time><template data-if="hasOutcome"><span class="ef-status-lozenge" data-bind-data-state="outcomeState" data-text="outcome"></span></template></div>
+                <h3 class="app-wrap"><span aria-hidden="true" data-text="glyph"></span> <span data-text="title"></span></h3>
+                <p class="app-meta"><span data-text="kind"></span> <span class="ef-identifier" data-text="sha"></span></p>
+                <template data-if="hasUrl"><a data-bind-href="url" data-bind-aria-label="linkLabel" target="_blank" rel="noopener noreferrer">View on GitHub</a></template>
+              </div>
+            </li>
+          </template>
+        </ol>
+        <template data-if="noReplayEvents"><p>No loaded events fall inside this window.</p></template>
+      </section>
+    </section>
+
+    <!-- ===== Settings ===== -->
+    <section class="app-screen" data-bind-hidden="hideSettings" hidden aria-label="Settings">
+      <section class="app-section" aria-labelledby="s-repo-title">
+        <h2 id="s-repo-title">Repository</h2>
+        <p data-bind-hidden="noSelection">Observing <span class="ef-identifier" data-text="repoText"></span>.</p>
+        <div class="ef-actions">
+          <a class="ef-button" href="#/select">Switch repository</a>
+          <button type="button" data-event="forget" data-bind-hidden="noSelection">Forget repository</button>
+        </div>
+      </section>
+
+      <section class="app-section" data-bind-hidden="noSelection" aria-labelledby="s-comp-title">
+        <h2 id="s-comp-title">Competition clock for this repository</h2>
+        <p class="app-meta">Planning configuration, not an observation. Specula never infers kickoff from commit times. Times use this device's time zone (<span data-text="zoneLabel"></span>).</p>
+        <p data-text="kickoffSaved"></p>
+        <form class="ef-form" data-event="saveCompetition" novalidate>
+          <div class="ef-field">
+            <label class="ef-field__label" for="kickoff-input">Kickoff</label>
+            <input id="kickoff-input" type="datetime-local" data-event="kickoff" data-bind-value="kickoffValue">
+          </div>
+          <div class="ef-field">
+            <label class="ef-field__label" for="duration-input">Duration (minutes)</label>
+            <span class="ef-field__description" id="duration-help">Indy Init rehearsals used 420 minutes.</span>
+            <input id="duration-input" type="number" min="1" step="1" inputmode="numeric" aria-describedby="duration-help" data-event="duration" data-bind-value="durationValue">
+          </div>
+          <div class="ef-actions">
+            <button type="submit" class="app-primary">Save competition clock</button>
+            <button type="button" data-event="clearCompetition">Reset to Indy Init preset</button>
+          </div>
+        </form>
+        <template data-if="hasRecordedKickoff">
+          <div class="app-strip">
+            <p data-text="recordedKickoff"></p>
+            <button type="button" data-event="recordedKickoff">Use the recorded kickoff</button>
+          </div>
+        </template>
+        <template data-if="hasCompetitionMessage"><p role="status" data-text="competitionMessage"></p></template>
+        <h3>Planned checkpoints (minutes after kickoff)</h3>
+        <ul class="app-rows">
+          <template data-each="checkpoints" data-key="key">
+            <li class="app-row app-row--plain ef-field">
+              <label class="ef-field__label" data-bind-for="inputId" data-text="label"></label>
+              <input type="number" min="0" step="1" inputmode="numeric" data-bind-id="inputId" data-event="checkpoint" data-bind-value="offset">
+            </li>
+          </template>
+        </ul>
+      </section>
+
+      <section class="app-section" aria-labelledby="s-theme-title">
+        <h2 id="s-theme-title">Appearance</h2>
+        <div class="ef-field">
+          <label class="ef-field__label" for="theme-select">Theme</label>
+          <select id="theme-select" data-event="theme" data-bind-value="themeValue">
+            <option value="system">Match this device</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="s-storage-title">
+        <h2 id="s-storage-title">Saved preferences</h2>
+        <p data-text="storageStatus"></p>
+        <button type="button" data-event="clearAll">Clear all saved settings</button>
+      </section>
+    </section>
+
+    <!-- ===== About ===== -->
+    <section class="app-screen" data-bind-hidden="hideAbout" hidden aria-label="About Specula">
+      <p class="app-lead">Specula is Echelon Foundry's independent, read-only observer for autonomous software engineering. It reads public GitHub data in your browser, never changes an observed repository, needs no token and collects no telemetry.</p>
+      <dl class="ef-key-value-list app-facts">
+        <div><dt>Version</dt><dd data-text="version"></dd></div>
+        <div><dt>Source commit</dt><dd><a class="ef-identifier" data-bind-href="sourceUrl" data-text="sourceSha" target="_blank" rel="noopener noreferrer"></a></dd></div>
+        <div><dt>Built</dt><dd data-text="buildTime"></dd></div>
+        <div><dt>Metric definitions</dt><dd data-text="metricsVersion"></dd></div>
+        <div><dt>Evidence adapters</dt><dd data-text="adapterVersion"></dd></div>
+      </dl>
+      <section class="app-section" aria-labelledby="a-deps-title">
+        <h2 id="a-deps-title">Pinned components</h2>
+        <ul class="app-rows">
+          <template data-each="dependencies" data-key="id">
+            <li class="app-row app-row--plain"><p><strong data-text="name"></strong> <span class="ef-identifier" data-text="version"></span></p><a data-bind-href="url" target="_blank" rel="noopener noreferrer">Release</a></li>
+          </template>
+        </ul>
+      </section>
+      <section class="app-section" aria-labelledby="a-adapters-title">
+        <h2 id="a-adapters-title">Supported evidence formats</h2>
+        <ul class="app-rows">
+          <template data-each="adapters" data-key="id">
+            <li class="app-row app-row--plain"><p><span class="ef-identifier" data-text="path"></span></p><p class="app-meta" data-text="schema"></p></li>
+          </template>
+        </ul>
+      </section>
+      <section class="app-section" aria-labelledby="a-diag-title">
+        <h2 id="a-diag-title">Last refresh diagnostics</h2>
+        <p data-text="requestCount"></p>
+        <p data-text="rateText"></p>
+        <ul class="app-rows">
+          <template data-each="endpoints" data-key="id">
+            <li class="app-row app-row--plain"><p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="label"></span> <span data-text="name"></span></p></li>
+          </template>
+        </ul>
+      </section>
+      <p class="app-meta">Licensed under the PolyForm Noncommercial License 1.0.0. <a href="https://github.com/kemiller2002/specula" target="_blank" rel="noopener noreferrer">Source on GitHub</a>.</p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p data-bind-hidden="noSelection">Last successful refresh: <span data-text="lastSuccess"></span> · Last attempt: <span data-text="lastAttempt"></span></p>
+    <p data-bind-hidden="noSelection" data-text="rateText"></p>
+    <nav class="app-footer__nav" aria-label="Secondary">
+      <a href="#/settings" data-bind-aria-current="navSettings">Settings</a>
+      <a href="#/about" data-bind-aria-current="navAbout">About</a>
+      <span>Build <span class="ef-identifier" data-text="sourceShaShort"></span></span>
+    </nav>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{
+  "format": "specula.dependency-baseline/1",
+  "verifiedOn": "2026-10-31",
+  "selectionRule": "Newest published stable release of each component, verified against its actual release artifact (SPEC-E-006..E-010). No versions were copied from prior rehearsals.",
+  "components": [
+    {
+      "name": "@echelon-foundry/limen",
+      "role": "Browser kernel (Limen boundary)",
+      "version": "0.9.1",
+      "registry": "npm",
+      "releaseUrl": "https://www.npmjs.com/package/@echelon-foundry/limen/v/0.9.1",
+      "latestStableAtVerification": "0.9.1",
+      "compatibility": "PASS: F# engine handshake (contract limen.core@1, fingerprint sha256:2d5e16b7…) accepted in Chromium; browser suite green."
+    },
+    {
+      "name": "EchelonFoundry.Limen.Contract",
+      "role": "Generated F# wire contract",
+      "version": "0.9.1",
+      "registry": "GitHub release asset (Sigstore-attested), vendored in vendor/nuget",
+      "releaseUrl": "https://github.com/kemiller2002/limen/releases/tag/v0.9.1",
+      "sha256": "4d30d6e563b57163ff53a85a56537b924bbe757ae9b4e5ee36487d70613a73d2",
+      "latestStableAtVerification": "0.9.1",
+      "compatibility": "PASS: matches npm kernel 0.9.1 contract fingerprint."
+    },
+    {
+      "name": "EchelonFoundry.Limen.Guest",
+      "role": "F# handshake answer",
+      "version": "0.9.1",
+      "registry": "GitHub release asset (Sigstore-attested), vendored in vendor/nuget",
+      "releaseUrl": "https://github.com/kemiller2002/limen/releases/tag/v0.9.1",
+      "sha256": "58c3b32abc4ff8b0944c5c447ae74f0f971ec2885374dd5f8482acc4fa26993f",
+      "latestStableAtVerification": "0.9.1",
+      "compatibility": "PASS"
+    },
+    {
+      "name": "@echelon-foundry/design-system",
+      "role": "Forma design system (tokens, foundations, components, Echelon brand, color contract)",
+      "version": "0.13.0",
+      "registry": "npm",
+      "releaseUrl": "https://www.npmjs.com/package/@echelon-foundry/design-system/v/0.13.0",
+      "latestStableAtVerification": "0.13.0",
+      "brandManifest": "dist/brands/echelon.css (Echelon Foundry, light and dark)",
+      "colorContract": "contracts/color-contract.json forma.color-contract/1.0.0",
+      "compatibility": "PASS: app CSS validated with the package's validateColorFiles; layout suite green."
+    },
+    {
+      "name": "Microsoft.NET.Sdk.WebAssembly / wasm-tools",
+      "role": ".NET WebAssembly runtime",
+      "version": "net10.0 (SDK 10.0.x per global.json, latestFeature)",
+      "registry": "Microsoft",
+      "compatibility": "PASS"
+    },
+    {
+      "name": "@playwright/test",
+      "role": "Browser test runner (build tooling only)",
+      "version": "1.63.0",
+      "registry": "npm",
+      "compatibility": "PASS"
+    }
+  ],
+  "notUsed": [
+    { "name": "Folio (@echelon-foundry/print-components)", "reason": "Optional printing; not needed for core acceptance. Latest tag v0.4.1; the package is not published on npm." },
+    { "name": "Conditor 0.10.18", "reason": "Its fsharp-limen-web scaffold installs the full governed environment (Praxis, Ordo, Aegis, branch protection, inert Pages workflow) for a new empty repository. Specula already had requirements and a Pages configuration; the app follows the scaffold's layout conventions (F# engine, C# JSExport shim, npm root, Playwright, Pages workflow) without running it. Recorded as a deliberate exception." },
+    { "name": "Praxis / Ordo / Dokimos / Percepta", "reason": "Not runtime dependencies. Their released evidence formats were inspected; the observed rehearsal repository publishes causa.* / indy-init.* evidence, which the adapter registry supports exactly." }
+  ]
+}
