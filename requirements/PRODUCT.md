@@ -52,3 +52,15 @@ Status: proposed. No implementation or acceptance claims.
 - SPEC-D-010: Refresh is single-flight per repository, cancellable or superseded on repository change, with bounded requests and rate-limit-aware backoff.
 - SPEC-A-007: Select repository, reload, navigate between screens and refresh; verify selection remains and no re-entry is needed.
 - SPEC-A-008: Test malformed, unavailable and disabled localStorage, stale network data, repeated refresh taps and switching repository during an in-flight request.
+
+## Engineering process measurement (approved)
+- SPEC-P-006: Present Activity, Verification, and Efficiency as distinct dimensions of engineering progress. Never use event volume as a proxy for working software.
+- SPEC-UI-019: Overview displays three clearly labeled sections: Activity (observed changes), Verification (evidenced outcomes), and Efficiency (time and rework metrics when measurable). Each section links to source details and shows Unavailable when its evidence is missing.
+- SPEC-UI-020: Activity summarizes commits, pull requests, checks, and deployments with explicit observation windows and incomplete-coverage warnings.
+- SPEC-UI-021: Verification shows current HEAD CI, requirement evidence, and independent deployment/smoke-test evidence separately; no global success inferred from green CI alone.
+- SPEC-UI-022: Efficiency shows only metrics with explicit definitions, denominator, window, provenance and coverage. Initial candidates: time to first passing HEAD CI, time to first evidenced deployment, failure-to-recovery time, verified requirements per hour, and correction cycles.
+- SPEC-D-011: Efficiency metrics must be derived from timestamped source events or supported structured evidence; never infer agent tokens, cost, intent, or private reasoning from GitHub activity.
+- SPEC-D-012: Version metric definitions to enable future rehearsal comparisons; comparisons must disclose differences in scope, workload and observation completeness.
+- SPEC-A-009: High activity with failing HEAD CI must show activity without suggesting verified success.
+- SPEC-A-010: Passing CI without deployment smoke-test evidence must show verification as incomplete, not 'application works'.
+- SPEC-A-011: Missing timestamps or requirements evidence must produce Unavailable efficiency metrics, not zeroes or invented estimates.
