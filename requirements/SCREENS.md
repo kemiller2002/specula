@@ -105,3 +105,15 @@ Fetch: Idle | Loading | Fresh(timestamp) | Partial(timestamp,reason) | Stale(tim
 8. CI green on old SHA but failed/unknown on HEAD: Overview and Verification do not claim HEAD is green.
 9. Unsupported evidence schema: show unavailable with explanation and continue displaying GitHub facts.
 10. Replay a time window: only supported timestamped events and source-linked milestones are shown.
+
+## Approved overview extension: three engineering dimensions
+
+Below the current HEAD and attention indicators, present three evidence-linked summary sections, in this order:
+
+1. **Activity: What happened?** Commits, PRs, checks, deployments. Show the observed time window and partial-coverage state. Tap to open Activity with appropriate filter.
+2. **Verification: What passed?** HEAD-specific CI, structured requirements, and separately verified deployed-app smoke tests. Tap to open Verification. A passing build does not imply a usable application.
+3. **Efficiency: How much verified progress for the time spent?** Show only measured durations, recovery cycles, and evidence-backed verified requirements per hour. If data is insufficient, say 'Not measurable from available evidence'. Tap to open an Efficiency detail section within Verification or Replay, without introducing a fifth primary navigation destination.
+
+Mobile: stack the three sections vertically. Desktop: allow columns only if full labels, caveats and source links remain readable. No decorative progress percentages. Every figure must have source and denominator.
+
+Acceptance: fixtures for many commits/failed checks, passing checks/no smoke evidence, and insufficient timestamps must all render distinctly and correctly.
