@@ -13,6 +13,8 @@ Requirements definition in progress. No application implementation or passing te
 - [Product requirements](requirements/PRODUCT.md)
 - [Engineering, security and verification requirements](requirements/ENGINEERING.md)
 - [Mobile-first screen contracts and acceptance scenarios](requirements/SCREENS.md)
+- [Detailed visual and interaction design](requirements/EXPERIENCE.md)
+- [Capabilities, limitations and data contracts](requirements/CAPABILITIES.md)
 
 ## Architecture
 
