@@ -20,6 +20,7 @@ module Evidence =
         | Kickoff
         | DecisionTable
         | DefectTable
+        | OrdoDecisionLog
 
     type Adapter =
         { Id: string
@@ -38,7 +39,9 @@ module Evidence =
           { Id = "decisions"; Kind = DecisionTable; Path = "evidence/DECISIONS.md"; Schema = "markdown table: ID | Decision | Why | Effect"
             Description = "Recorded decisions" }
           { Id = "defects"; Kind = DefectTable; Path = "evidence/defects.md"; Schema = "markdown table: ID | Defect | Found by | Fix | Guard"
-            Description = "Recorded defects and their corrections" } ]
+            Description = "Recorded defects and their corrections" }
+          { Id = "ordo-decisions"; Kind = OrdoDecisionLog; Path = OrdoDecisions.path; Schema = OrdoDecisions.schema
+            Description = "Ordo pattern decision events (JSONL)" } ]
 
     let adapterVersion = "specula.evidence-adapters/1"
 
@@ -74,6 +77,7 @@ module Evidence =
         | KickoffRecord of RecordedKickoff
         | Decisions of Decision list
         | Corrections of Correction list
+        | OrdoDecisionEvents of OrdoDecisions.Summary
 
     type SourceOutcome =
         | NotFetched
@@ -245,6 +249,13 @@ module Evidence =
             match adapter.Kind with
             | DecisionTable -> parseDecisions text
             | DefectTable -> parseDefects text
+            | OrdoDecisionLog ->
+                let summary = OrdoDecisions.summarize text
+                // Every line damaged, or none in the supported schema: say so rather than show zeros.
+                if summary.Runs + summary.Evaluated = 0 && summary.CorruptLines + summary.UnsupportedLines > 0 then
+                    if summary.UnsupportedLines > 0 then Unsupported "no ordo.decision-event/1 lines"
+                    else Invalid "no readable ordo.decision-event/1 lines"
+                else Parsed(OrdoDecisionEvents summary)
             | Traceability | AcceptanceLedger | Kickoff ->
                 match Json.tryParse text with
                 | None -> Invalid "not valid JSON"
@@ -269,6 +280,7 @@ module Evidence =
     let decisions sources = sources |> pick (function Decisions d -> Some d | _ -> None)
     let corrections sources = sources |> pick (function Corrections c -> Some c | _ -> None)
     let kickoff sources = sources |> pick (function KickoffRecord k -> Some k | _ -> None)
+    let ordoDecisions sources = sources |> pick (function OrdoDecisionEvents s -> Some s | _ -> None)
 
     let outcomeLabel outcome =
         match outcome with
@@ -278,6 +290,7 @@ module Evidence =
         | Parsed(KickoffRecord _) -> "Supported · kickoff recorded"
         | Parsed(Decisions d) -> $"Supported · {List.length d} decisions"
         | Parsed(Corrections c) -> $"Supported · {List.length c} corrections"
+        | Parsed(OrdoDecisionEvents s) -> $"Supported · {s.Evaluated} decisions evaluated"
         | Missing -> "Not found"
         | Unsupported found -> $"Unsupported schema ({found})"
         | Invalid reason -> $"Parse error: {reason}"

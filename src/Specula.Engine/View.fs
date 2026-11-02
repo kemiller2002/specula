@@ -408,6 +408,61 @@ module View =
 
     let private evidenceState (state: EvidenceState) = Evidence.stateLozenge state
 
+    /// Ordo observability (read-only): decision events recorded by the
+    /// observed repository, plus the dated Rehearsal 2–7 audit snapshot.
+    let ordoEntries (repo: RepoId option) (sha: string option) (sources: Evidence.Source list) : Entry list =
+        let summary = Evidence.ordoDecisions sources
+        let counted (prefix: string) (pairs: (string * int) list) =
+            pairs |> List.map (fun (k, n) -> item [ pt "id" (prefix + k); pt "label" k; pt "count" (string n) ])
+        let outcome = sources |> List.tryFind (fun s -> s.Adapter.Kind = Evidence.OrdoDecisionLog) |> Option.map (fun s -> s.Outcome)
+        let url = match repo, sha with Some r, Some h -> Evidence.blobUrl r h OrdoDecisions.path | _ -> "https://github.com/"
+        let unknowns (s: OrdoDecisions.Summary) =
+            [ "execution-unknown", "Selected or delegated, no execution reported", s.ExecutionUnknown
+              "unverified", "Executed (as reported), no independent verdict", s.ExecutedButUnverified
+              "uncorrelated", "Execution or verdict naming no recorded decision", s.Uncorrelated
+              "incomplete", "Runs with missing evaluation events", s.IncompleteRuns
+              "corrupt", "Unreadable lines", s.CorruptLines
+              "unsupported", "Lines in another schema", s.UnsupportedLines
+              "duplicates", "Duplicate events ignored", s.Duplicates ]
+            |> List.map (fun (id, label, n) -> item [ pt "id" id; pt "label" label; pt "count" (string n); pt "state" (if n = 0 then "unknown" else "attention") ])
+        let shortHead = sha |> Option.map Repo.shortSha |> Option.defaultValue "?"
+        let audit =
+            OrdoDecisions.rehearsalAudit
+            |> List.map (fun r ->
+                item
+                    [ pt "id" r.Rehearsal; pt "rehearsal" r.Rehearsal; pt "repository" r.Repository; pt "head" r.Head
+                      pt "recognition" r.PatternRecognition; pt "other" r.OtherOrdoUse; pt "telemetry" r.Telemetry
+                      pt "url" $"https://github.com/{r.Repository}/tree/{r.Head}" ])
+        [ f "hasOrdo" summary.IsSome
+          f "noOrdo" summary.IsNone
+          t "ordoUnavailable"
+              (match outcome with
+               | Some(Evidence.Unsupported found) -> $"Ordo decision events at {OrdoDecisions.path} use an unsupported schema ({found}). Supported: {OrdoDecisions.schema}."
+               | Some(Evidence.Invalid reason) -> $"Ordo decision events at {OrdoDecisions.path} could not be read ({reason})."
+               | Some(Evidence.TooLarge bytes) -> $"Ordo decision events are too large to read ({bytes} bytes)."
+               | Some(Evidence.FetchFailed reason) -> $"Ordo decision events could not be fetched ({reason})."
+               | _ -> $"No Ordo decision events at {OrdoDecisions.path} at HEAD. Whether Ordo was used is unknown, not zero.")
+          t "ordoSource" $"Counted by Specula from {OrdoDecisions.path} ({OrdoDecisions.schema}) at {shortHead}. Executions are as reported by the executor; verdicts are as reported by the verifier."
+          t "ordoUrl" url
+          t "ordoEvaluated" (summary |> Option.map (fun s -> string s.Evaluated) |> Option.defaultValue "Unknown")
+          t "ordoMatched" (summary |> Option.map (fun s -> string s.Matched) |> Option.defaultValue "Unknown")
+          t "ordoMatchRate"
+              (summary
+               |> Option.map (fun s -> s.MatchRate |> Option.map (fun r -> (r * 100.0).ToString("0.0", Globalization.CultureInfo.InvariantCulture) + "%") |> Option.defaultValue "Not applicable (nothing evaluated)")
+               |> Option.defaultValue "Unknown")
+          t "ordoFallback" (summary |> Option.map (fun s -> string s.FallbackToAgent) |> Option.defaultValue "Unknown")
+          t "ordoRuns" (summary |> Option.map (fun s -> string s.Runs) |> Option.defaultValue "Unknown")
+          items "ordoStatus" (summary |> Option.map (fun s -> counted "status-" s.ByStatus) |> Option.defaultValue [])
+          items "ordoFamilies" (summary |> Option.map (fun s -> counted "family-" s.ByFamily) |> Option.defaultValue [])
+          items "ordoSelections" (summary |> Option.map (fun s -> counted "selection-" s.Selections) |> Option.defaultValue [])
+          items "ordoExecutions" (summary |> Option.map (fun s -> counted "execution-" s.ExecutionsReported) |> Option.defaultValue [])
+          items "ordoVerified" (summary |> Option.map (fun s -> counted "verdict-" s.Verified) |> Option.defaultValue [])
+          f "noOrdoVerified" (summary |> Option.forall (fun s -> s.Verified.IsEmpty))
+          items "ordoUnknowns" (summary |> Option.map unknowns |> Option.defaultValue [])
+          items "ordoAudit" audit
+          t "ordoAuditCaption" $"Audit snapshot recorded {OrdoDecisions.auditDate}; not live data. No rehearsal recorded a pattern recognition, so Ordo pattern use is Unknown for each, not zero."
+          t "ordoAuditUrl" OrdoDecisions.auditSource ]
+
     let private verification (model: Model) (snapshot: Snapshot option) : Entry list =
         let sha, _, verdict = headInfo model snapshot
         let repo = model.Selection
@@ -557,6 +612,7 @@ module View =
           f "noCorrections" correctionItems.IsEmpty
           items "evidenceSources" sourceItems
           t "adapterVersion" Evidence.adapterVersion ]
+        @ ordoEntries repo sha sources
 
     // ---- replay ----
 

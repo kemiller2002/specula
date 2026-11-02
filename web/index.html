@@ -405,6 +405,74 @@
         </details>
       </section>
 
+      <section class="app-section" id="ordo" aria-labelledby="v-ordo-title">
+        <h2 id="v-ordo-title">Ordo decisions</h2>
+        <template data-if="noOrdo"><p class="app-wrap" data-text="ordoUnavailable"></p></template>
+        <div data-bind-hidden="noOrdo">
+          <p class="app-meta app-wrap" data-text="ordoSource"></p>
+          <dl class="ef-key-value-list app-detail">
+            <div><dt>Decisions evaluated</dt><dd data-text="ordoEvaluated"></dd></div>
+            <div><dt>Matched</dt><dd data-text="ordoMatched"></dd></div>
+            <div><dt>Match rate</dt><dd data-text="ordoMatchRate"></dd></div>
+            <div><dt>Fallback to agent</dt><dd data-text="ordoFallback"></dd></div>
+            <div><dt>Recognition runs</dt><dd data-text="ordoRuns"></dd></div>
+          </dl>
+          <h3>Match status</h3>
+          <ul class="app-counts">
+            <template data-each="ordoStatus" data-key="id">
+              <li><span class="ef-identifier" data-text="label"></span> <strong data-text="count"></strong></li>
+            </template>
+          </ul>
+          <h3>Pattern usage by category</h3>
+          <ul class="app-counts">
+            <template data-each="ordoFamilies" data-key="id">
+              <li><span class="ef-identifier" data-text="label"></span> <strong data-text="count"></strong></li>
+            </template>
+          </ul>
+          <h3>Selection</h3>
+          <ul class="app-counts">
+            <template data-each="ordoSelections" data-key="id">
+              <li><span class="ef-identifier" data-text="label"></span> <strong data-text="count"></strong></li>
+            </template>
+          </ul>
+          <h3>Executions (as reported by the executor)</h3>
+          <ul class="app-counts">
+            <template data-each="ordoExecutions" data-key="id">
+              <li><span class="ef-identifier" data-text="label"></span> <strong data-text="count"></strong></li>
+            </template>
+          </ul>
+          <h3>Independently verified outcomes</h3>
+          <template data-if="noOrdoVerified"><p>No independent verdict is recorded for any decision.</p></template>
+          <ul class="app-counts">
+            <template data-each="ordoVerified" data-key="id">
+              <li><span class="ef-identifier" data-text="label"></span> <strong data-text="count"></strong></li>
+            </template>
+          </ul>
+          <h3>Unknown or missing evidence</h3>
+          <ul class="app-rows">
+            <template data-each="ordoUnknowns" data-key="id">
+              <li class="app-row app-row--plain"><p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="count"></span> <span class="app-wrap" data-text="label"></span></p></li>
+            </template>
+          </ul>
+          <a data-bind-href="ordoUrl" target="_blank" rel="noopener noreferrer">Open the decision event log on GitHub</a>
+        </div>
+        <details class="ef-disclosure app-details">
+          <summary>Rehearsal 2–7 comparison (audit snapshot)</summary>
+          <p class="app-meta app-wrap" data-text="ordoAuditCaption"></p>
+          <ul class="app-rows">
+            <template data-each="ordoAudit" data-key="id">
+              <li class="app-row app-row--plain">
+                <p><span class="ef-identifier" data-text="rehearsal"></span> <strong>Pattern recognition: <span data-text="recognition"></span></strong></p>
+                <p class="app-meta app-wrap">Other Ordo use: <span data-text="other"></span></p>
+                <p class="app-meta app-wrap">Telemetry: <span data-text="telemetry"></span></p>
+                <a data-bind-href="url" target="_blank" rel="noopener noreferrer"><span data-text="repository"></span> @ <span data-text="head"></span></a>
+              </li>
+            </template>
+          </ul>
+          <a data-bind-href="ordoAuditUrl" target="_blank" rel="noopener noreferrer">Audit evidence matrix</a>
+        </details>
+      </section>
+
       <section class="app-section" id="efficiency" aria-labelledby="v-eff-title">
         <h2 id="v-eff-title">Efficiency metrics</h2>
         <p class="app-meta">Definitions <span data-text="metricsVersion"></span>. Each metric states its definition, denominator, window and provenance. Commit counts are never used as productivity.</p>

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 // Deterministic fake GitHub for browser tests. A scenario is plain data;
 // `install` routes api.github.com and raw.githubusercontent.com to it.
 
@@ -57,6 +58,13 @@ export const scenarios = {
         ] }),
         "evidence/DECISIONS.md": "| ID | Decision | Why | Effect |\n|---|---|---|---|\n| KD-001 | Use Limen | Boundary | F# engine |\n",
         "evidence/kickoff/kickoff.json": JSON.stringify({ schema: "indy-init.rehearsal-kickoff/1", t0: at(0), deadline: at(420), timeLimitMinutes: 420 }),
+      },
+    }),
+  // Real `sde ecir recognize --events` output from kemiller2002/ordo (timer fixture cohort, not a rehearsal).
+  ordoEvidence: () =>
+    baseScenario({
+      evidence: {
+        "evidence/ordo/decision-events.jsonl": readFileSync(new URL("../Specula.Engine.Tests/fixtures/ordo-decision-events.jsonl", import.meta.url), "utf8"),
       },
     }),
   longNames: () =>

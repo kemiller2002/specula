@@ -281,3 +281,29 @@ test("activity filters and event details keep timestamps, SHAs and source links"
   await settled(page);
   await expect(page.locator('input[name="activity-filter"]:checked').locator("..")).toContainText("Commits");
 });
+
+test("Ordo decision events show counts, reported executions and independent verdicts separately", async ({ page }) => {
+  await install(page, scenarios.ordoEvidence);
+  await choose(page, "octo/demo");
+  await settled(page);
+  await nav(page, "Verify");
+  const ordo = page.locator("#v-ordo-title").locator("..");
+  await expect(ordo).toContainText("Decisions evaluated12");
+  await expect(ordo).toContainText("Match rate25.0%");
+  await expect(ordo).toContainText("Fallback to agent4");
+  await expect(ordo).toContainText("state.machine-guarded-transition");
+  await expect(ordo).toContainText("Selected or delegated, no execution reported");
+  await expect(ordo.locator("h3", { hasText: "Independently verified outcomes" })).toBeVisible();
+  await page.locator("summary", { hasText: "Rehearsal 2–7 comparison" }).click();
+  await expect(ordo).toContainText("Audit snapshot recorded 2026-11-02; not live data.");
+});
+
+test("without Ordo decision events the section says unknown, never zero", async ({ page }) => {
+  await install(page, scenarios.passing);
+  await choose(page, "octo/demo");
+  await settled(page);
+  await nav(page, "Verify");
+  const ordo = page.locator("#v-ordo-title").locator("..");
+  await expect(ordo).toContainText("Whether Ordo was used is unknown, not zero.");
+  await expect(ordo.getByText("Match rate", { exact: true })).toBeHidden();
+});
