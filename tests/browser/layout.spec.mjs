@@ -279,3 +279,19 @@ test("reduced motion removes meaningful transition time", async ({ page }) => {
   const duration = await page.getByRole("button", { name: "Observe repository" }).evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration));
   expect(duration).toBeLessThanOrEqual(0.001);
 });
+
+for (const width of [320, 390]) {
+  test(`Ordo decisions at ${width}px (iPhone widths): no overflow with the audit expanded`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 844 });
+    await install(page, scenarios.ordoEvidence);
+    await choose(page, "octo/demo");
+    await settled(page);
+    await page.goto("/#/verification");
+    await page.locator("summary", { hasText: "Rehearsal 2–7 comparison" }).click();
+    await page.waitForTimeout(150);
+    const g = await geometry(page);
+    expect(g.overflow, "horizontal overflow").toBeLessThanOrEqual(0);
+    expect(g.escapes, "content escaping cards").toEqual([]);
+    await page.locator("#ordo").screenshot({ path: testInfo.outputPath(`ordo-${width}.png`) });
+  });
+}

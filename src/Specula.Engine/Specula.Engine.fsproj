@@ -18,6 +18,7 @@
     <Compile Include="GitHub.fs" />
     <Compile Include="Status.fs" />
     <Compile Include="Events.fs" />
+    <Compile Include="OrdoDecisions.fs" />
     <Compile Include="Evidence.fs" />
     <Compile Include="Preferences.fs" />
     <Compile Include="Metrics.fs" />

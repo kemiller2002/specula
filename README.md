@@ -11,6 +11,7 @@ Point Specula at a public GitHub repository to inspect commits, pull requests, C
 - **Overview** — current HEAD, SHA-bound check status, evidence coverage, what needs attention, and three separate dimensions: *Activity* (what happened), *Verification* (what passed) and *Efficiency* (what was measurably achieved).
 - **Activity** — source-linked commits, pull requests, workflow runs, HEAD check runs and deployments, filterable, with bounded "load more".
 - **Verification** — HEAD checks only for the exact HEAD SHA; build vs deployment vs deployed-application smoke test judged separately; requirements, decisions and corrections only from supported, versioned evidence; metric definitions.
+- **Ordo decisions** (on Verification) — read-only counts from `evidence/ordo/decision-events.jsonl` (`ordo.decision-event/1`): decisions evaluated, matched, match rate, pattern usage by category, fallback to agent, executions as reported, independent verdicts, and every unknown (unexecuted, unverified, uncorrelated, corrupt). Missing evidence reads *Unknown*, never zero. Includes the dated Rehearsal 2–7 audit snapshot, labeled as such.
 - **Replay** — a chosen time window, planned versus observed milestones, competition clock and a presentation view.
 - **Settings / About** — competition clock per repository, theme, saved preferences, build provenance and pinned component versions.
 
