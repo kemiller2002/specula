@@ -21,6 +21,9 @@ module Update =
         | Refresh
         | LoadMoreCommits
         | SetFilter of string
+        | RequirementScreenFilter of string
+        | RequirementTypeFilter of string
+        | RequirementStatusFilter of string
         | ToggleEvent of string
         | Forget
         | ReplayStart of string
@@ -365,6 +368,7 @@ module Update =
                     Snapshot = Some snapshot
                     DraftError = None
                     Draft = (if asCandidate then "" else model.Draft)
+                    RequirementFilter = (if asCandidate then RequirementVerification.noFilter else model.RequirementFilter)
                     Prefs = (model.Prefs |> Preferences.withRecent canonical |> fun p -> { p with SelectedRepository = (if model.SharedLink.IsSome && not asCandidate then p.SelectedRepository else Some canonical) })
                     SharedLink = (if asCandidate then None else model.SharedLink) }
             let stage2 = fetchAll canonical [ FetchCommits 1; FetchPulls; FetchRuns; FetchDeployments ]
@@ -500,7 +504,7 @@ module Update =
 
     let private rememberView (screen: Screen) (model: Model) : Step =
         match screen with
-        | Overview | Activity | Verification | Replay when model.Prefs.SelectedView <> screenKey screen && model.SharedLink.IsNone ->
+        | Overview | Activity | Verification | Requirements | Replay when model.Prefs.SelectedView <> screenKey screen && model.SharedLink.IsNone ->
             savePrefs { model with Prefs = { model.Prefs with SelectedView = screenKey screen } }
         | _ -> just model
 
@@ -614,6 +618,7 @@ module Update =
             let m =
                 { m with
                     Selection = None
+                    RequirementFilter = RequirementVerification.noFilter
                     Snapshot = None
                     Candidate = None
                     SharedLink = None
@@ -646,6 +651,9 @@ module Update =
                 if alreadyLoading then just model else fetch repo (FetchCommits(s.CommitPage + 1)) model
             | _ -> just model
         | SetFilter key -> just { model with Filter = Events.filterOfKey key |> Option.defaultValue model.Filter }
+        | RequirementScreenFilter value -> just { model with RequirementFilter = RequirementVerification.withScreen value model.RequirementFilter }
+        | RequirementTypeFilter value -> just { model with RequirementFilter = RequirementVerification.withType value model.RequirementFilter }
+        | RequirementStatusFilter value -> just { model with RequirementFilter = RequirementVerification.withStatus value model.RequirementFilter }
         | ToggleEvent id -> just { model with Expanded = (if model.Expanded = Some id then None else Some id) }
         | Forget -> forget model
         | ReplayStart text -> just { model with Replay = { model.Replay with StartText = text; Error = None } }
@@ -702,6 +710,9 @@ module Update =
         | "refresh" | "retry" -> Refresh
         | "more" -> LoadMoreCommits
         | "filter" -> SetFilter key
+        | "reqScreen" -> RequirementScreenFilter value
+        | "reqType" -> RequirementTypeFilter value
+        | "reqStatus" -> RequirementStatusFilter value
         | "toggle" -> ToggleEvent key
         | "forget" -> Forget
         | "replayStart" -> ReplayStart value

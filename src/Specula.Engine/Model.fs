@@ -12,6 +12,7 @@ module Model =
         | Overview
         | Activity
         | Verification
+        | Requirements
         | Replay
         | Settings
         | About
@@ -22,6 +23,7 @@ module Model =
         | Overview -> "overview"
         | Activity -> "activity"
         | Verification -> "verification"
+        | Requirements -> "requirements"
         | Replay -> "replay"
         | Settings -> "settings"
         | About -> "about"
@@ -32,6 +34,7 @@ module Model =
         | "overview" -> Some Overview
         | "activity" -> Some Activity
         | "verification" -> Some Verification
+        | "requirements" -> Some Requirements
         | "replay" -> Some Replay
         | "settings" -> Some Settings
         | "about" -> Some About
@@ -43,6 +46,7 @@ module Model =
         | Overview -> "Overview"
         | Activity -> "Activity"
         | Verification -> "Verification"
+        | Requirements -> "Requirement verification"
         | Replay -> "Replay"
         | Settings -> "Settings"
         | About -> "About Specula"
@@ -154,6 +158,7 @@ module Model =
           Screen: Screen
           Route: Screen option
           Filter: Events.Filter
+          RequirementFilter: RequirementVerification.Filter
           Expanded: string option
           Draft: string
           DraftError: string option
@@ -186,6 +191,7 @@ module Model =
           Screen = Picker
           Route = None
           Filter = Events.AllEvents
+          RequirementFilter = RequirementVerification.noFilter
           Expanded = None
           Draft = ""
           DraftError = None

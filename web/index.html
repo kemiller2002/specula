@@ -41,6 +41,7 @@
       <a href="#/overview" data-bind-aria-current="navOverview">Overview</a>
       <a href="#/activity" data-bind-aria-current="navActivity">Activity</a>
       <a href="#/verification" data-bind-aria-current="navVerification">Verify</a>
+      <a href="#/requirements" data-bind-aria-current="navRequirements">Requirements</a>
       <a href="#/replay" data-bind-aria-current="navReplay">Replay</a>
     </nav>
   </header>
@@ -506,6 +507,125 @@
           </template>
         </ul>
       </section>
+    </section>
+
+    <!-- ===== Requirement verification ===== -->
+    <section class="app-screen" data-bind-hidden="hideRequirements" hidden aria-label="Requirement verification">
+      <p class="app-screen-intro">Per-requirement verification recorded by the observed repository's verifier at HEAD. Implemented is not verified.</p>
+      <template data-if="noRv">
+        <p class="app-wrap"><span class="ef-status-lozenge" data-state="unknown">Unavailable</span> <span id="rv-unavailable" data-text="rvUnavailable"></span></p>
+      </template>
+      <div data-bind-hidden="noRv">
+        <section class="app-section" aria-labelledby="rv-summary-title">
+          <h2 id="rv-summary-title">Verification summary</h2>
+          <p class="app-meta app-wrap" data-text="rvSource"></p>
+          <p id="rv-headline"><span class="ef-status-lozenge" data-bind-data-state="rvHeadlineState" data-text="rvVerifiedPercent"></span> <span class="app-wrap" data-text="rvHeadline"></span></p>
+          <template data-if="hasRvMismatch">
+            <p class="app-warning app-wrap"><span class="ef-status-lozenge" data-state="attention">Summary mismatch</span> <span data-text="rvMismatch"></span></p>
+          </template>
+          <dl class="ef-key-value-list app-facts" id="rv-counts">
+            <div><dt>Applicable requirement IDs</dt><dd data-text="rvApplicable"></dd></div>
+            <div><dt>Implemented IDs</dt><dd data-text="rvImplemented"></dd></div>
+            <div><dt>Verified IDs</dt><dd data-text="rvVerified"></dd></div>
+            <div><dt>Failed IDs</dt><dd data-text="rvFailed"></dd></div>
+            <div><dt>Blocked IDs</dt><dd data-text="rvBlocked"></dd></div>
+            <div><dt>Not-run IDs</dt><dd data-text="rvNotRun"></dd></div>
+            <div><dt>Not applicable IDs</dt><dd data-text="rvNotApplicable"></dd></div>
+          </dl>
+        </section>
+
+        <section class="app-section" aria-labelledby="rv-coverage-title">
+          <h2 id="rv-coverage-title">Coverage</h2>
+          <dl class="ef-key-value-list app-facts">
+            <div id="rv-verified-coverage"><dt>Verified coverage (verified ÷ applicable)</dt><dd><strong data-text="rvVerifiedPercent"></strong> <span class="app-meta app-wrap" data-text="rvVerifiedRatio"></span></dd></div>
+            <div id="rv-implemented-coverage"><dt>Implementation coverage (implemented ÷ applicable, not verification)</dt><dd><strong data-text="rvImplementedPercent"></strong> <span class="app-meta app-wrap" data-text="rvImplementedRatio"></span></dd></div>
+          </dl>
+        </section>
+
+        <section class="app-section" aria-labelledby="rv-provenance-title">
+          <h2 id="rv-provenance-title">Provenance and acceptance</h2>
+          <dl class="ef-key-value-list app-facts" id="rv-provenance">
+            <div><dt>Most recent verification</dt><dd class="app-wrap" data-text="rvTime"></dd></div>
+            <div><dt>Source commit</dt><dd><span class="ef-identifier app-wrap" data-text="rvSourceCommit"></span></dd></div>
+            <div><dt>Manifest hash</dt><dd><span class="ef-identifier app-wrap" data-text="rvManifestHash"></span></dd></div>
+            <div><dt>Catalog</dt><dd><span class="ef-identifier app-wrap" data-text="rvCatalog"></span></dd></div>
+            <div><dt>Manifest</dt><dd data-text="rvIntact"></dd></div>
+            <div><dt>Candidate</dt><dd><span class="ef-identifier app-wrap" data-text="rvCandidate"></span></dd></div>
+            <div><dt>Run</dt><dd><span class="ef-identifier app-wrap" data-text="rvRunId"></span></dd></div>
+            <div><dt>Acceptance</dt><dd><span class="ef-status-lozenge" id="rv-accepted" data-bind-data-state="rvAcceptedState" data-text="rvAccepted"></span></dd></div>
+          </dl>
+          <a data-bind-href="rvUrl" target="_blank" rel="noopener noreferrer">Open the requirement verification report on GitHub</a>
+        </section>
+
+        <section class="app-section" aria-labelledby="rv-failing-title">
+          <h2 id="rv-failing-title">Requirements not verified</h2>
+          <p class="app-meta">Every applicable requirement that did not pass, failures first. Not affected by the filters below.</p>
+          <template data-if="noRvUnverified"><p>Every applicable requirement passed.</p></template>
+          <ul class="app-rows" id="rv-unverified">
+            <template data-each="rvUnverified" data-key="id">
+              <li class="app-row app-row--plain">
+                <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="status"></span> <span class="ef-identifier" data-text="id"></span> <strong class="app-wrap" data-text="name"></strong></p>
+                <p class="app-meta" data-text="failureClass"></p>
+                <p class="app-meta app-wrap" data-text="obligations"></p>
+              </li>
+            </template>
+          </ul>
+          <details class="ef-disclosure app-details" data-bind-hidden="noRvObligations">
+            <summary>Obligations not passing, with reasons</summary>
+            <ul class="app-rows" id="rv-obligations">
+              <template data-each="rvObligations" data-key="id">
+                <li class="app-row app-row--plain">
+                  <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="status"></span> <span class="ef-identifier app-wrap" data-text="id"></span></p>
+                  <p class="app-wrap" data-text="reason"></p>
+                </li>
+              </template>
+            </ul>
+          </details>
+        </section>
+
+        <section class="app-section" aria-labelledby="rv-list-title">
+          <h2 id="rv-list-title">All requirements</h2>
+          <div class="app-rv-filters">
+            <label class="ef-select-field">
+              <span class="ef-field__label">Screen</span>
+              <span class="ef-select" data-ef-motion-weight="standard">
+              <select class="ef-select__input" id="rv-screen" name="rv-screen" data-event="reqScreen" data-bind-value="rvScreenValue">
+                <template data-each="rvScreenOptions" data-key="id"><option data-bind-value="value" data-bind-selected="selected" data-text="label"></option></template>
+              </select>
+              <span class="ef-select__indicator" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="ef-select-field">
+              <span class="ef-field__label">Requirement type</span>
+              <span class="ef-select" data-ef-motion-weight="standard">
+              <select class="ef-select__input" id="rv-type" name="rv-type" data-event="reqType" data-bind-value="rvTypeValue">
+                <template data-each="rvTypeOptions" data-key="id"><option data-bind-value="value" data-bind-selected="selected" data-text="label"></option></template>
+              </select>
+              <span class="ef-select__indicator" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="ef-select-field">
+              <span class="ef-field__label">Verification status</span>
+              <span class="ef-select" data-ef-motion-weight="standard">
+              <select class="ef-select__input" id="rv-status" name="rv-status" data-event="reqStatus" data-bind-value="rvStatusValue">
+                <template data-each="rvStatusOptions" data-key="id"><option data-bind-value="value" data-bind-selected="selected" data-text="label"></option></template>
+              </select>
+              <span class="ef-select__indicator" aria-hidden="true"></span>
+              </span>
+            </label>
+          </div>
+          <p class="app-meta" role="status" aria-live="polite" id="rv-shown" data-text="rvShown"></p>
+          <template data-if="noRvRows"><p>No requirement matches these filters.</p></template>
+          <ul class="app-rows" id="rv-rows">
+            <template data-each="rvRows" data-key="id">
+              <li class="app-row app-row--plain">
+                <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="status"></span> <span class="ef-identifier" data-text="id"></span> <strong class="app-wrap" data-text="name"></strong></p>
+                <p class="app-meta app-wrap">Type: <span data-text="type"></span> · Screen: <span data-text="screen"></span> · Failure class: <span data-text="failureClass"></span> · <span data-text="implemented"></span></p>
+              </li>
+            </template>
+          </ul>
+        </section>
+      </div>
     </section>
 
     <!-- ===== Replay ===== -->

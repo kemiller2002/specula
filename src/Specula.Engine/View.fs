@@ -84,6 +84,7 @@ module View =
         [ t "navOverview" (current Overview)
           t "navActivity" (current Activity)
           t "navVerification" (current Verification)
+          t "navRequirements" (current Requirements)
           t "navReplay" (current Replay)
           t "navSettings" (current Settings)
           t "navAbout" (current About) ]
@@ -94,6 +95,7 @@ module View =
           f "hideOverview" (hide Overview)
           f "hideActivity" (hide Activity)
           f "hideVerification" (hide Verification)
+          f "hideRequirements" (hide Requirements)
           f "hideReplay" (hide Replay)
           f "hideSettings" (hide Settings)
           f "hideAbout" (hide About)
@@ -614,6 +616,156 @@ module View =
           t "adapterVersion" Evidence.adapterVersion ]
         @ ordoEntries repo sha sources
 
+    // ---- requirement verification ----
+
+    module RV = RequirementVerification
+
+    /// Commit time of the HEAD commit the report was read from, when that
+    /// commit is in the loaded history. Never invented.
+    let requirementVerificationTime (model: Model) (snapshot: Snapshot option) (sha: string) : string =
+        snapshot
+        |> Option.bind (fun s -> s.Commits |> List.tryFind (fun c -> String.Equals(c.Sha, sha, StringComparison.OrdinalIgnoreCase)))
+        |> Option.bind (fun c -> c.Date)
+        |> Option.map (fun d -> $"{Time.local model.Zone d} (commit time of {Repo.shortSha sha}, the HEAD commit the report was read from)")
+        |> Option.defaultValue "Time unavailable"
+
+    let requirementVerificationEntries (model: Model) (snapshot: Snapshot option) : Entry list =
+        let sources = snapshot |> Option.map (fun s -> s.Evidence) |> Option.defaultValue []
+        let source = sources |> List.tryFind (fun s -> s.Adapter.Kind = Evidence.RequirementVerificationReport)
+        let report = Evidence.requirementVerification sources
+        let sha = source |> Option.map (fun s -> s.Sha)
+        let url =
+            match model.Selection, sha with
+            | Some r, Some h -> Evidence.blobUrl r h RV.path
+            | _ -> "https://github.com/"
+        let requirements = report |> Option.map (fun r -> r.Requirements) |> Option.defaultValue []
+        let summary = RV.summarize requirements
+        let complete = RV.isComplete summary
+        let count (n: int) = if report.IsSome then string n else "Unknown"
+        let filter = model.RequirementFilter
+        let shown = RV.apply filter requirements
+        let option (value, label, selected) = item [ pt "id" value; pt "value" value; pt "label" label; pf "selected" selected ]
+        let unverified = RV.unverified requirements
+        let unverifiedItems =
+            unverified
+            |> List.map (fun (r, obligations) ->
+                item
+                    [ pt "id" r.Id
+                      pt "name" (orDash r.Name)
+                      pt "status" (RV.statusLabel r.Status)
+                      pt "state" (RV.statusLozenge r.Status)
+                      pt "failureClass" (r.FailureClass |> Option.map (fun c -> $"Failure class: {c}") |> Option.defaultValue "Failure class: not stated")
+                      pt "obligations"
+                          (match obligations with
+                           | [] -> "No failing obligation is listed for this requirement."
+                           | os -> "Not passing: " + String.Join(", ", os |> List.map (fun o -> o.Id))) ])
+        let obligationItems =
+            unverified
+            |> List.collect (fun (r, obligations) ->
+                obligations
+                |> List.map (fun o ->
+                    item
+                        [ pt "id" o.Id
+                          pt "requirement" r.Id
+                          pt "status" (RV.statusLabel o.Status)
+                          pt "state" (RV.statusLozenge o.Status)
+                          pt "reason" (if o.Reason = "" then "No reason recorded." else o.Reason) ]))
+        let rowItems =
+            shown
+            |> List.map (fun r ->
+                item
+                    [ pt "id" r.Id
+                      pt "name" (orDash r.Name)
+                      pt "type" (orDash r.Type)
+                      pt "screen" (orDash r.Screen)
+                      pt "status" (RV.statusLabel r.Status)
+                      pt "state" (RV.statusLozenge r.Status)
+                      pt "failureClass" (r.FailureClass |> Option.defaultValue "—")
+                      pt "implemented" (if r.Implemented then "Implemented" else "Not implemented") ])
+        let headline, headlineState =
+            match report with
+            | None -> "", "unknown"
+            | Some _ when summary.Applicable = 0 -> "The report lists no applicable requirements, so nothing is verified.", "unknown"
+            | Some _ when complete -> $"All {summary.Applicable} applicable requirements passed verification.", "ok"
+            | Some _ ->
+                $"Not complete: {summary.Verified} of {summary.Applicable} applicable requirements passed verification; {summary.Applicable - summary.Verified} did not.",
+                (if summary.Failed + summary.Blocked > 0 then "blocked" else "attention")
+        let accepted, acceptedState =
+            match report |> Option.bind (fun r -> r.Acceptance.Accepted) with
+            | Some true -> "Passed (as recorded by the verifier)", "ok"
+            | Some false -> "Not passed (as recorded by the verifier)", "blocked"
+            | None -> "Not recorded", "unknown"
+        let mismatches =
+            match report |> Option.bind (fun r -> r.Declared) with
+            | Some declared -> RV.summaryMismatches summary declared
+            | None -> []
+        let percentOr fallback = Option.defaultValue fallback
+        let manifestText (field: RV.Manifest -> string option) =
+            report |> Option.bind (fun r -> field r.Manifest) |> Option.defaultValue "Not recorded"
+        let describe (applied: RV.Filter) =
+            [ applied.Screen |> Option.map (fun s -> $"screen {s}")
+              applied.Type |> Option.map (fun ty -> $"type {ty}")
+              applied.Status |> Option.map (fun s -> $"status {RV.statusLabel s}") ]
+            |> List.choose id
+        [ f "hasRv" report.IsSome
+          f "noRv" report.IsNone
+          t "rvUnavailable"
+              (match source |> Option.map (fun s -> s.Outcome) with
+               | None
+               | Some Evidence.NotFetched -> "Requirement verification evidence has not been checked yet."
+               | Some Evidence.Missing -> $"No requirement verification evidence was found at {RV.path} at HEAD {shortOr sha}. Verification is unknown, not zero."
+               | Some(Evidence.Unsupported found) -> $"Requirement verification evidence at {RV.path} uses an unsupported schema ({found}). Supported: {RV.schema}. Verification is unknown."
+               | Some(Evidence.Invalid reason) -> $"Requirement verification evidence at {RV.path} could not be read ({reason}). Verification is unknown."
+               | Some(Evidence.TooLarge bytes) -> $"Requirement verification evidence is too large to read ({bytes} bytes). Verification is unknown."
+               | Some(Evidence.FetchFailed reason) -> $"Requirement verification evidence could not be fetched ({reason}). Verification is unknown."
+               | Some(Evidence.Parsed _) -> "")
+          t "rvSource" $"Read by Specula from {RV.path} ({RV.schema}) at HEAD {shortOr sha}. Statuses are recorded by the verifier, not by Specula; counts are computed from the requirement list."
+          t "rvUrl" url
+          t "rvHeadline" headline
+          t "rvHeadlineState" headlineState
+          t "rvApplicable" (count summary.Applicable)
+          t "rvImplemented" (count summary.Implemented)
+          t "rvVerified" (count summary.Verified)
+          t "rvFailed" (count summary.Failed)
+          t "rvBlocked" (count summary.Blocked)
+          t "rvNotRun" (count summary.NotRun)
+          t "rvNotApplicable" (count summary.NotApplicable)
+          t "rvVerifiedPercent" (RV.verifiedPercent summary |> percentOr "Not applicable (no applicable requirements)")
+          t "rvVerifiedRatio" $"{summary.Verified} verified of {summary.Applicable} applicable requirement IDs (verified ÷ applicable)"
+          t "rvImplementedPercent" (RV.implementedPercent summary |> percentOr "Not applicable (no applicable requirements)")
+          t "rvImplementedRatio" $"{summary.Implemented} implemented of {summary.Applicable} applicable requirement IDs (implemented ÷ applicable). Implemented is not verified."
+          t "rvTime" (sha |> Option.map (requirementVerificationTime model snapshot) |> Option.defaultValue "Time unavailable")
+          t "rvSourceCommit" (manifestText (fun m -> m.SourceCommit))
+          t "rvManifestHash" (manifestText (fun m -> m.ContentHash))
+          t "rvCatalog" (manifestText (fun m -> m.CatalogId))
+          t "rvIntact"
+              (match report |> Option.bind (fun r -> r.Manifest.Intact) with
+               | Some true -> "Intact (as recorded)"
+               | Some false -> "Not intact (as recorded)"
+               | None -> "Not recorded")
+          t "rvCandidate" (report |> Option.bind (fun r -> r.Candidate) |> Option.defaultValue "Not recorded")
+          t "rvRunId" (report |> Option.bind (fun r -> r.RunId) |> Option.defaultValue "Not recorded")
+          t "rvAccepted" accepted
+          t "rvAcceptedState" acceptedState
+          f "hasRvMismatch" (not mismatches.IsEmpty)
+          t "rvMismatch" (if mismatches.IsEmpty then "" else "The file's own summary disagrees with its requirement list (" + String.Join("; ", mismatches) + "). Specula shows the counts computed from the list.")
+          items "rvUnverified" unverifiedItems
+          f "noRvUnverified" (report.IsSome && unverifiedItems.IsEmpty)
+          items "rvObligations" obligationItems
+          f "noRvObligations" obligationItems.IsEmpty
+          items "rvScreenOptions" (RV.screenOptions filter requirements |> List.map option)
+          items "rvTypeOptions" (RV.typeOptions filter requirements |> List.map option)
+          items "rvStatusOptions" (RV.statusOptions filter |> List.map option)
+          t "rvScreenValue" (filter.Screen |> Option.defaultValue "all")
+          t "rvTypeValue" (filter.Type |> Option.defaultValue "all")
+          t "rvStatusValue" (filter.Status |> Option.map RV.statusCode |> Option.defaultValue "all")
+          items "rvRows" rowItems
+          f "noRvRows" (report.IsSome && rowItems.IsEmpty)
+          t "rvShown"
+              (match describe filter with
+               | [] -> $"Showing all {List.length requirements} requirements in the report."
+               | parts -> $"Showing {List.length shown} of {List.length requirements} requirements (filtered by " + String.Join(", ", parts) + ").") ]
+
     // ---- replay ----
 
     let private replay (model: Model) (snapshot: Snapshot option) (events: SourceEvent list) : Entry list =
@@ -775,6 +927,7 @@ module View =
           efficiency model snapshot
           activity model snapshot events
           verification model snapshot
+          requirementVerificationEntries model snapshot
           replay model snapshot events
           settings model snapshot
           about model snapshot ]
