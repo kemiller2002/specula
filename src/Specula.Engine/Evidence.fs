@@ -21,6 +21,7 @@ module Evidence =
         | DecisionTable
         | DefectTable
         | OrdoDecisionLog
+        | RequirementVerificationReport
 
     type Adapter =
         { Id: string
@@ -41,7 +42,9 @@ module Evidence =
           { Id = "defects"; Kind = DefectTable; Path = "evidence/defects.md"; Schema = "markdown table: ID | Defect | Found by | Fix | Guard"
             Description = "Recorded defects and their corrections" }
           { Id = "ordo-decisions"; Kind = OrdoDecisionLog; Path = OrdoDecisions.path; Schema = OrdoDecisions.schema
-            Description = "Ordo pattern decision events (JSONL)" } ]
+            Description = "Ordo pattern decision events (JSONL)" }
+          { Id = "requirement-verification"; Kind = RequirementVerificationReport; Path = RequirementVerification.path; Schema = RequirementVerification.schema
+            Description = "Requirement verification report (per requirement and obligation)" } ]
 
     let adapterVersion = "specula.evidence-adapters/1"
 
@@ -78,6 +81,7 @@ module Evidence =
         | Decisions of Decision list
         | Corrections of Correction list
         | OrdoDecisionEvents of OrdoDecisions.Summary
+        | RequirementVerificationResult of RequirementVerification.Report
 
     type SourceOutcome =
         | NotFetched
@@ -242,6 +246,11 @@ module Evidence =
             |> Corrections
             |> Parsed
 
+    let parseRequirementVerification (json: JsonElement) : SourceOutcome =
+        match RequirementVerification.parse json with
+        | Ok report -> Parsed(RequirementVerificationResult report)
+        | Error reason -> Invalid reason
+
     /// Parse one fetched file with its adapter. Input is untrusted text.
     let parse (adapter: Adapter) (text: string) : SourceOutcome =
         if text.Length > maxBytes then TooLarge text.Length
@@ -256,13 +265,14 @@ module Evidence =
                     if summary.UnsupportedLines > 0 then Unsupported "no ordo.decision-event/1 lines"
                     else Invalid "no readable ordo.decision-event/1 lines"
                 else Parsed(OrdoDecisionEvents summary)
-            | Traceability | AcceptanceLedger | Kickoff ->
+            | Traceability | AcceptanceLedger | Kickoff | RequirementVerificationReport ->
                 match Json.tryParse text with
                 | None -> Invalid "not valid JSON"
                 | Some json ->
                     match adapter.Kind with
                     | Traceability -> withSchema adapter json parseTraceability
                     | AcceptanceLedger -> withSchema adapter json parseAcceptance
+                    | RequirementVerificationReport -> withSchema adapter json parseRequirementVerification
                     | _ -> withSchema adapter json parseKickoff
 
     let rawUrl (repo: RepoId) (sha: string) (path: string) =
@@ -281,6 +291,7 @@ module Evidence =
     let corrections sources = sources |> pick (function Corrections c -> Some c | _ -> None)
     let kickoff sources = sources |> pick (function KickoffRecord k -> Some k | _ -> None)
     let ordoDecisions sources = sources |> pick (function OrdoDecisionEvents s -> Some s | _ -> None)
+    let requirementVerification sources = sources |> pick (function RequirementVerificationResult r -> Some r | _ -> None)
 
     let outcomeLabel outcome =
         match outcome with
@@ -291,6 +302,7 @@ module Evidence =
         | Parsed(Decisions d) -> $"Supported · {List.length d} decisions"
         | Parsed(Corrections c) -> $"Supported · {List.length c} corrections"
         | Parsed(OrdoDecisionEvents s) -> $"Supported · {s.Evaluated} decisions evaluated"
+        | Parsed(RequirementVerificationResult r) -> $"Supported · {List.length r.Requirements} requirements"
         | Missing -> "Not found"
         | Unsupported found -> $"Unsupported schema ({found})"
         | Invalid reason -> $"Parse error: {reason}"

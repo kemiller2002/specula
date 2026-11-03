@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { install, scenarios, choose, settled, ready } from "./github-fixtures.mjs";
 
 const widths = [320, 375, 390, 430, 768, 1024, 1440];
-const screens = ["overview", "activity", "verification", "replay", "settings", "about", "select"];
+const screens = ["overview", "activity", "verification", "requirements", "replay", "settings", "about", "select"];
 
 // Geometry assertions: no horizontal page overflow, and no element inside a
 // rounded/clipped card escapes its card's box.

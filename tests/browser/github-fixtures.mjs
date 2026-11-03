@@ -67,6 +67,13 @@ export const scenarios = {
         "evidence/ordo/decision-events.jsonl": readFileSync(new URL("../Specula.Engine.Tests/fixtures/ordo-decision-events.jsonl", import.meta.url), "utf8"),
       },
     }),
+  // Real dokimos.requirement-verification/1 output from the verification pipeline.
+  requirementVerification: () =>
+    baseScenario({
+      evidence: {
+        "evidence/requirement-verification/requirement-verification.json": readFileSync(new URL("../Specula.Engine.Tests/fixtures/requirement-verification.json", import.meta.url), "utf8"),
+      },
+    }),
   longNames: () =>
     baseScenario({
       repository: (owner, name) => ({ name, owner: { login: owner }, default_branch: "feature/" + "very-long-branch-name-".repeat(5), private: false, html_url: `https://github.com/${owner}/${name}` }),

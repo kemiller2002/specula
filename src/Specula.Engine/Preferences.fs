@@ -97,7 +97,7 @@ module Preferences =
           Theme = LightTheme
           Competitions = Map.empty }
 
-    let knownViews = [ "overview"; "activity"; "verification"; "replay" ]
+    let knownViews = [ "overview"; "activity"; "verification"; "requirements"; "replay" ]
 
     let withRecent (repo: RepoId) (prefs: Prefs) =
         { prefs with

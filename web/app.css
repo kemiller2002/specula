@@ -282,6 +282,9 @@
   .app-control-panel .app-meta { color: var(--ef-color-text-on-secondary-surface); }
   .app-theme-field { max-inline-size: var(--ef-primitive-size-container-narrow); }
   .app-theme-field .ef-select { inline-size: 100%; }
+  .app-rv-filters { display: flex; flex-wrap: wrap; gap: var(--ef-primitive-space-3) var(--ef-primitive-space-4); margin-block: var(--ef-primitive-space-3); }
+  .app-rv-filters .ef-select-field { flex: 1 1 12rem; min-inline-size: 0; max-inline-size: 100%; }
+  .app-rv-filters .ef-select { inline-size: 100%; }
 
   .app-details > summary { min-block-size: var(--ef-primitive-size-target-min); cursor: pointer; display: flex; align-items: center; }
 
