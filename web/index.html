@@ -43,6 +43,7 @@
       <a href="#/verification" data-bind-aria-current="navVerification">Verify</a>
       <a href="#/requirements" data-bind-aria-current="navRequirements">Requirements</a>
       <a href="#/replay" data-bind-aria-current="navReplay">Replay</a>
+      <a href="#/observer" data-bind-aria-current="navObserver">Observer</a>
     </nav>
   </header>
 
@@ -628,6 +629,125 @@
       </div>
     </section>
 
+    <!-- ===== Observer replay (historical; separate from live monitoring) ===== -->
+    <section class="app-screen" data-bind-hidden="hideObserver" hidden aria-label="Observer replay">
+      <p class="app-screen-intro">Historical replay of the read-only implementation observer against Indy Init Rehearsal 009. At each checkpoint the observer saw only what existed at that time. This is not live monitoring.</p>
+      <template data-if="obsLoading">
+        <section class="ef-skeleton" aria-busy="true" aria-label="Loading observer replay"><span class="ef-visually-hidden">Loading observer replay</span><div class="ef-skeleton__line ef-skeleton__line--title"></div><div class="ef-skeleton__line"></div><div class="ef-skeleton__line ef-skeleton__line--short"></div></section>
+      </template>
+      <template data-if="obsUnavailable">
+        <p class="app-wrap"><span class="ef-status-lozenge" data-state="unknown">Unavailable</span> <span id="obs-unavailable" data-text="obsUnavailableText"></span></p>
+      </template>
+      <div data-bind-hidden="obsNotLoaded" hidden>
+        <section class="app-section" aria-labelledby="obs-run-title">
+          <h2 id="obs-run-title">Run under observation</h2>
+          <dl class="ef-key-value-list app-facts">
+            <div><dt>Repository</dt><dd class="app-wrap" data-text="obsRepository"></dd></div>
+            <div><dt>Original T0</dt><dd class="app-wrap" data-text="obsT0"></dd></div>
+            <div><dt>Original deadline</dt><dd class="app-wrap" id="obs-deadline" data-text="obsDeadline"></dd></div>
+            <div><dt>Budget</dt><dd data-text="obsBudget"></dd></div>
+            <div><dt>Scope manifest</dt><dd><span class="ef-identifier" data-text="obsScopeDigest"></span></dd></div>
+          </dl>
+          <div class="app-rv-filters">
+            <label class="ef-select-field">
+              <span class="ef-field__label">Visibility</span>
+              <span class="ef-select" data-ef-motion-weight="standard">
+              <select class="ef-select__input" id="obs-mode" name="obs-mode" data-event="observerMode">
+                <template data-each="obsModes" data-key="id"><option data-bind-value="value" data-bind-selected="selected" data-text="label"></option></template>
+              </select>
+              <span class="ef-select__indicator" aria-hidden="true"></span>
+              </span>
+            </label>
+            <label class="ef-select-field">
+              <span class="ef-field__label">Checkpoint</span>
+              <span class="ef-select" data-ef-motion-weight="standard">
+              <select class="ef-select__input" id="obs-checkpoint" name="obs-checkpoint" data-event="observerCheckpoint">
+                <template data-each="obsCheckpoints" data-key="id"><option data-bind-value="value" data-bind-selected="selected" data-text="label"></option></template>
+              </select>
+              <span class="ef-select__indicator" aria-hidden="true"></span>
+              </span>
+            </label>
+          </div>
+          <p class="app-meta app-wrap" data-text="obsModeHelp"></p>
+        </section>
+
+        <section class="app-section" aria-labelledby="obs-clock-title">
+          <h2 id="obs-clock-title">At <span data-text="obsLabel"></span></h2>
+          <p class="app-meta app-wrap" data-text="obsTrigger"></p>
+          <dl class="ef-key-value-list app-facts" id="obs-clock">
+            <div><dt>Observed at</dt><dd class="app-wrap" data-text="obsAt"></dd></div>
+            <div><dt>Elapsed</dt><dd id="obs-elapsed" data-text="obsElapsed"></dd></div>
+            <div><dt>Remaining</dt><dd id="obs-remaining" data-text="obsRemaining"></dd></div>
+            <div><dt>Last observed commit</dt><dd><span class="ef-identifier" id="obs-head" data-text="obsHead"></span> <span class="app-meta app-wrap" data-text="obsLastCommitAt"></span></dd></div>
+          </dl>
+        </section>
+
+        <section class="app-section" aria-labelledby="obs-coverage-title">
+          <h2 id="obs-coverage-title">Coverage of the authoritative scope</h2>
+          <dl class="ef-key-value-list app-facts">
+            <div id="obs-scope"><dt>Scope coverage (code committed)</dt><dd><span class="app-wrap" data-text="obsScope"></span> <span class="app-meta app-wrap" data-text="obsScopeDetail"></span></dd></div>
+            <div id="obs-verified"><dt>Verified coverage</dt><dd><strong class="app-wrap" data-text="obsVerified"></strong> <span class="app-meta app-wrap" data-text="obsVerifiedDetail"></span></dd></div>
+          </dl>
+        </section>
+
+        <section class="app-section" aria-labelledby="obs-alerts-title">
+          <h2 id="obs-alerts-title">Critical and warning alerts</h2>
+          <p class="app-meta" id="obs-counts" data-text="obsCounts"></p>
+          <template data-if="obsNoAlerts"><p>No critical or warning finding is active at this checkpoint.</p></template>
+          <ul class="app-rows" id="obs-alerts">
+            <template data-each="obsAlerts" data-key="id">
+              <li class="app-row app-row--plain">
+                <p><span class="ef-status-lozenge" data-bind-data-state="state" data-text="severity"></span> <span class="ef-identifier" data-text="rule"></span> <strong class="app-wrap" data-text="title"></strong></p>
+                <p class="app-meta app-wrap" data-text="intervention"></p>
+              </li>
+            </template>
+          </ul>
+        </section>
+
+        <section class="app-section" aria-labelledby="obs-blockers-title">
+          <h2 id="obs-blockers-title">Current blockers</h2>
+          <template data-if="obsNoBlockers"><p>No verification blocker is active at this checkpoint.</p></template>
+          <ul class="app-list" id="obs-blockers">
+            <template data-each="obsBlockers" data-key="id"><li class="app-wrap" data-text="text"></li></template>
+          </ul>
+        </section>
+
+        <section class="app-section" aria-labelledby="obs-recovery-title">
+          <h2 id="obs-recovery-title">Recovery readiness</h2>
+          <p><span class="ef-status-lozenge" id="obs-recovery" data-bind-data-state="obsRecoveryState" data-text="obsRecovery"></span></p>
+          <template data-if="obsRecoveryComplete"><p>A replacement builder could resume from the repository evidence.</p></template>
+          <ul class="app-list">
+            <template data-each="obsRecoveryMissing" data-key="id"><li class="app-wrap">Missing: <span data-text="text"></span></li></template>
+          </ul>
+        </section>
+
+        <section class="app-section" aria-labelledby="obs-action-title">
+          <h2 id="obs-action-title">Recommended next action</h2>
+          <p class="app-wrap" id="obs-action" data-text="obsAction"></p>
+        </section>
+
+        <div data-bind-hidden="obsNoHandoff">
+          <section class="app-section" aria-labelledby="obs-handoff-title">
+            <h2 id="obs-handoff-title">Continuation handoff at the stopping point</h2>
+            <dl class="ef-key-value-list app-facts">
+              <div><dt>Generated at</dt><dd class="app-wrap" data-text="obsHandoffAt"></dd></div>
+              <div><dt>Current commit</dt><dd><span class="ef-identifier" data-text="obsHandoffCommit"></span></dd></div>
+              <div><dt>Remaining mandatory requirements</dt><dd data-text="obsHandoffRemaining"></dd></div>
+              <div><dt>Validation</dt><dd class="app-wrap" data-text="obsHandoffConsistent"></dd></div>
+            </dl>
+            <ol class="app-list">
+              <template data-each="obsHandoffActions" data-key="id"><li class="app-wrap" data-text="text"></li></template>
+            </ol>
+          </section>
+        </div>
+
+        <section class="app-section" aria-labelledby="obs-live-title">
+          <h2 id="obs-live-title">Live monitoring</h2>
+          <p class="app-wrap">Not available in the browser. The observer's tree checks need a read-only clone, which the <span class="ef-identifier">specula-observer collect</span> command makes; the page never writes to, or holds credentials for, the monitored repository.</p>
+        </section>
+      </div>
+    </section>
+
     <!-- ===== Replay ===== -->
     <section class="app-screen" data-bind-hidden="hideReplay" hidden aria-label="Replay">
       <p class="app-note">Specula is pre-existing observation infrastructure; it did not build this application. Replay is derived from available GitHub records, not a complete record of agent reasoning or local work.</p>
@@ -843,6 +963,7 @@
     <p data-bind-hidden="noSelection">Last successful refresh: <span data-text="lastSuccess"></span> · Last attempt: <span data-text="lastAttempt"></span></p>
     <p data-bind-hidden="noSelection" data-text="rateText"></p>
     <nav class="app-footer__nav" aria-label="Secondary">
+      <a href="#/observer" data-bind-aria-current="navObserver">Observer replay</a>
       <a href="#/settings" data-bind-aria-current="navSettings">Settings</a>
       <a href="#/about" data-bind-aria-current="navAbout">About</a>
       <span>Build <span class="ef-identifier" data-text="sourceShaShort"></span></span>

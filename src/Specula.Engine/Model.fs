@@ -14,6 +14,7 @@ module Model =
         | Verification
         | Requirements
         | Replay
+        | Observer
         | Settings
         | About
 
@@ -25,6 +26,7 @@ module Model =
         | Verification -> "verification"
         | Requirements -> "requirements"
         | Replay -> "replay"
+        | Observer -> "observer"
         | Settings -> "settings"
         | About -> "about"
 
@@ -36,6 +38,7 @@ module Model =
         | "verification" -> Some Verification
         | "requirements" -> Some Requirements
         | "replay" -> Some Replay
+        | "observer" -> Some Observer
         | "settings" -> Some Settings
         | "about" -> Some About
         | _ -> None
@@ -48,6 +51,7 @@ module Model =
         | Verification -> "Verification"
         | Requirements -> "Requirement verification"
         | Replay -> "Replay"
+        | Observer -> "Observer replay"
         | Settings -> "Settings"
         | About -> "About Specula"
 
@@ -66,6 +70,9 @@ module Model =
         | FetchDeploymentStatuses of deploymentId: int64
         | FetchEvidence of adapterId: string * sha: string
         | RecheckHead
+        /// The observer's historical replay data, a static file served by
+        /// Specula itself (never the observed repository).
+        | FetchObserverReplay
 
     type Pending =
         { Request: Request
@@ -139,6 +146,20 @@ module Model =
           Presentation: bool
           Error: string option }
 
+    /// Historical observer replay data. Separate from live monitoring: it is
+    /// loaded once from Specula's own origin and never mixed with a
+    /// repository snapshot.
+    type ObserverData =
+        | ObserverNotRequested
+        | ObserverLoading
+        | ObserverLoaded of Specula.Engine.Observer.ReplayView.Report
+        | ObserverUnavailable of reason: string
+
+    type ObserverState =
+        { Data: ObserverData
+          Mode: string
+          Index: int option }
+
     type CompetitionDraft =
         { KickoffText: string
           DurationText: string
@@ -176,6 +197,7 @@ module Model =
           RequestCount: int
           Notice: string option
           Replay: ReplayState
+          Observer: ObserverState
           Competition: CompetitionDraft }
 
     let initial (now: DateTimeOffset) (zone: TimeZoneInfo) : Model =
@@ -209,6 +231,7 @@ module Model =
           RequestCount = 0
           Notice = None
           Replay = { StartText = ""; EndText = ""; Filter = Events.AllEvents; Presentation = false; Error = None }
+          Observer = { Data = ObserverNotRequested; Mode = "local"; Index = None }
           Competition = { KickoffText = ""; DurationText = ""; Message = None } }
 
     /// The snapshot only if it belongs to the selected repository: data from

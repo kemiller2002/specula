@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="src/Specula.Engine/Specula.Engine.fsproj" />
   <Project Path="src/Specula.Wasm/Specula.Wasm.csproj" />
+  <Project Path="src/Specula.Observer.Cli/Specula.Observer.Cli.fsproj" />
   <Project Path="tests/Specula.Engine.Tests/Specula.Engine.Tests.fsproj" />
 </Solution>

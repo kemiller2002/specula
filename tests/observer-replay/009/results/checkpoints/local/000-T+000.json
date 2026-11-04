@@ -1,0 +1,137 @@
+{
+  "schema": "specula.observer-checkpoint/1",
+  "label": "T+0",
+  "at": "2026-11-04T00:30:01Z",
+  "minute": 0,
+  "mode": "local",
+  "trigger": "checkpoint T+0",
+  "inputDigest": "9a9aa5526b919a08d04eee7844e9488f12da84912fc94bbc47b29fde014e35c2",
+  "visibleCommits": [
+    "aa12742c01269c7c0aa8c44d0c5a24937165dd95"
+  ],
+  "headSha": null,
+  "progress": {
+    "elapsedMinutes": 0,
+    "remainingMinutes": 420,
+    "builderCommits": 0,
+    "lastCommit": null,
+    "lastCommitAt": null,
+    "plannedFilesImplemented": 0,
+    "plannedFilesTotal": 0,
+    "mandatoryRequirements": 194,
+    "frozenPlanMandatory": 161,
+    "catalogMandatory": 33,
+    "codeCommitted": 0,
+    "demonstrated": 0,
+    "verifiedFrozenPlan": 0,
+    "verifiedCatalog": 0,
+    "notEvaluated": 194,
+    "testRunsCompleted": 0,
+    "testRunsPassed": 0,
+    "liveRoundTripWrites": 0,
+    "tasksDue": [
+      "T10"
+    ],
+    "tasksDueUnaddressed": [
+      "T10"
+    ]
+  },
+  "findings": [
+    {
+      "rule": "OBS-000",
+      "key": "OBS-000/unobservable",
+      "kind": "uncertainty",
+      "severity": "informational",
+      "title": "Builder session activity between commits is not observable",
+      "requirements": [],
+      "evidence": [
+        "The builder's session transcript and tool calls are not published; work between commits is unobservable.",
+        "Push times were not retrieved; remote visibility is approximated by the first CI run on a commit or a descendant (an upper bound).",
+        "CI artifacts (suite run.log files) were not downloaded; only job-log tails of failed runs were collected, and some tails stop before the cause line."
+      ],
+      "why": "Only repository and CI evidence is available; no conclusion is drawn about unrecorded work.",
+      "action": "None; findings are limited to what the repository shows.",
+      "confidence": "low",
+      "ownerInterventionNecessary": false,
+      "fingerprint": "Builder session activity between commits is not observable"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "R9L-0001",
+      "at": "2026-11-04T00:30:01Z",
+      "minute": 0,
+      "change": "new",
+      "severity": "informational",
+      "rule": "OBS-000",
+      "key": "OBS-000/unobservable",
+      "finding": {
+        "rule": "OBS-000",
+        "key": "OBS-000/unobservable",
+        "kind": "uncertainty",
+        "severity": "informational",
+        "title": "Builder session activity between commits is not observable",
+        "requirements": [],
+        "evidence": [
+          "The builder's session transcript and tool calls are not published; work between commits is unobservable.",
+          "Push times were not retrieved; remote visibility is approximated by the first CI run on a commit or a descendant (an upper bound).",
+          "CI artifacts (suite run.log files) were not downloaded; only job-log tails of failed runs were collected, and some tails stop before the cause line."
+        ],
+        "why": "Only repository and CI evidence is available; no conclusion is drawn about unrecorded work.",
+        "action": "None; findings are limited to what the repository shows.",
+        "confidence": "low",
+        "ownerInterventionNecessary": false,
+        "fingerprint": "Builder session activity between commits is not observable"
+      }
+    }
+  ],
+  "recovery": {
+    "readiness": "insufficient",
+    "checks": [
+      {
+        "item": "Authoritative T0 and deadline recorded",
+        "present": false,
+        "detail": "evidence/t0/T0.md"
+      },
+      {
+        "item": "Active Praxis work item",
+        "present": false,
+        "detail": ".ros/events/events.jsonl work.started"
+      },
+      {
+        "item": "Continuation record (next action)",
+        "present": false,
+        "detail": "HANDOFF.md updated since bootstrap, or a Praxis work checkpoint"
+      },
+      {
+        "item": "Declared scope and verification manifest",
+        "present": false,
+        "detail": "requirements/verification/catalog-pin.json"
+      },
+      {
+        "item": "CI status available",
+        "present": false,
+        "detail": "at least one completed workflow run"
+      },
+      {
+        "item": "Builder commits pushed",
+        "present": true,
+        "detail": "every visible builder commit has CI evidence of a push"
+      }
+    ],
+    "missing": [
+      "Authoritative T0 and deadline recorded",
+      "Active Praxis work item",
+      "Continuation record (next action)",
+      "Declared scope and verification manifest",
+      "CI status available"
+    ]
+  },
+  "limitations": [
+    "No builder commit is visible yet; scope and architecture rules have nothing to evaluate.",
+    "No CI run is visible; build and test status is unknown, not failed.",
+    "The builder's session transcript and tool calls are not published; work between commits is unobservable.",
+    "Push times were not retrieved; remote visibility is approximated by the first CI run on a commit or a descendant (an upper bound).",
+    "CI artifacts (suite run.log files) were not downloaded; only job-log tails of failed runs were collected, and some tails stop before the cause line."
+  ]
+}

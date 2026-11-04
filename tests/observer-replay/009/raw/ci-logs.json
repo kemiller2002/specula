@@ -1,0 +1,116 @@
+{
+ "source": "GitHub MCP get_job_logs (tail of the failed job's log), retrieved 2026-11-04. Lines are verbatim; timestamps stripped. Runs not listed here: log not collected. 'partial' marks a tail that did not reach the refused suite's cause line.",
+ "logs": [
+  {
+   "runId": 41752595190,
+   "jobId": 126321354869,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "REFUSED suite SU-OWN-DOTNET produced no result file (exit 1); see SU-OWN-DOTNET/run.log",
+    "run-suites: REFUSED (1 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ]
+  },
+  {
+   "runId": 41754817536,
+   "jobId": 126328334159,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "REFUSED suite SU-OWN-DOTNET produced no result file (exit 1); see SU-OWN-DOTNET/run.log",
+    "run-suites: REFUSED (1 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ]
+  },
+  {
+   "runId": 41756889999,
+   "jobId": 126335485666,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "REFUSED suite SU-OWN-DOTNET produced no result file (exit 1); see SU-OWN-DOTNET/run.log",
+    "REFUSED suite SU-BROWSER-WEBKIT produced no result file (exit 1); see SU-BROWSER-WEBKIT/run.log",
+    "REFUSED suite SU-DOTNET-LIVE produced no result file (exit 1); see SU-DOTNET-LIVE/run.log",
+    "run-suites: REFUSED (3 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ]
+  },
+  {
+   "runId": 41752595151,
+   "jobId": 126321369102,
+   "failedStep": "verdict (fail=0 ... exit $fail)",
+   "lines": [
+    "##[error]a content fault probe was not detected or errored (exit 4)",
+    "##[error]Process completed with exit code 1."
+   ]
+  },
+  {
+   "runId": 41756873905,
+   "jobId": 126334935384,
+   "failedStep": "build (after listing installed SDKs 8.0.427 .. 10.0.403)",
+   "lines": [
+    "10.0.403 [/usr/share/dotnet/sdk]",
+    "##[error]Process completed with exit code 155."
+   ]
+  },
+  {
+   "runId": 41752505247,
+   "jobId": 126320742109,
+   "failedStep": "not identified in the collected tail",
+   "lines": [
+    "##[warning]No files were found with the provided path: test-results/. No artifacts will be uploaded."
+   ],
+   "partial": true
+  },
+  {
+   "runId": 41758805409,
+   "jobId": 126341594519,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "REFUSED suite SU-OWN-DOTNET produced no result file (exit 1); see SU-OWN-DOTNET/run.log",
+    "REFUSED suite SU-BROWSER-WEBKIT produced no result file (exit 1); see SU-BROWSER-WEBKIT/run.log",
+    "REFUSED suite SU-DOTNET-LIVE produced no result file (exit 1); see SU-DOTNET-LIVE/run.log",
+    "run-suites: REFUSED (3 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ]
+  },
+  {
+   "runId": 41756580851,
+   "jobId": 126333998629,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "REFUSED suite SU-OWN-DOTNET produced no result file (exit 1); see SU-OWN-DOTNET/run.log",
+    "run-suites: REFUSED (1 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ]
+  },
+  {
+   "runId": 41758227046,
+   "jobId": 126339319968,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "run-suites: REFUSED (1 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ],
+   "partial": true
+  },
+  {
+   "runId": 41760289174,
+   "jobId": 126346120785,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "run-suites: REFUSED (1 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ],
+   "partial": true
+  },
+  {
+   "runId": 41760692303,
+   "jobId": 126347429136,
+   "failedStep": "Run the plan's suites at the candidate",
+   "lines": [
+    "run-suites: REFUSED (1 cause(s))",
+    "##[error]Process completed with exit code 4."
+   ],
+   "partial": true
+  }
+ ]
+}

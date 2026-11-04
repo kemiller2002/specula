@@ -17,6 +17,7 @@
     <Compile Include="TimeTests.fs" />
     <Compile Include="UpdateTests.fs" />
     <Compile Include="RequirementVerificationTests.fs" />
+    <Compile Include="ObserverTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
@@ -25,5 +26,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Specula.Engine/Specula.Engine.fsproj" />
+    <ProjectReference Include="../../src/Specula.Observer.Cli/Specula.Observer.Cli.fsproj" />
   </ItemGroup>
 </Project>

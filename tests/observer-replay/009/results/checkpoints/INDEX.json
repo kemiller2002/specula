@@ -1,0 +1,911 @@
+{
+  "schema": "specula.observer-checkpoint-index/1",
+  "inputDigest": "9a9aa5526b919a08d04eee7844e9488f12da84912fc94bbc47b29fde014e35c2",
+  "scopeDigest": "cee831dbe4f5b93b5eefacb75c7d0c72560dd89c028ae75557917c8faa937bc7",
+  "description": "Every checkpoint record with its sha256. Records are written once per replay from the snapshot of their instant and never edited; a changed record changes its digest.",
+  "records": [
+    {
+      "file": "local/000-T+000.json",
+      "sha256": "9a7db4230c2aadf8d7aa5c2760a00202b627a0bce00a9059082c5e9642e48b1c",
+      "label": "T+0",
+      "mode": "local",
+      "trigger": "checkpoint T+0"
+    },
+    {
+      "file": "local/001-T+002.json",
+      "sha256": "6823ab76188641820222cabf18bc6b95301da27af7ffb1daf3399533d96abd20",
+      "label": "T+2",
+      "mode": "local",
+      "trigger": "commit 8001e7c"
+    },
+    {
+      "file": "local/002-T+020.json",
+      "sha256": "46c768cb0ddc6df5950b9f2a7d83057b28a8533ce4e480d2c78bd94f56e07343",
+      "label": "T+20",
+      "mode": "local",
+      "trigger": "checkpoint T+20"
+    },
+    {
+      "file": "local/003-T+021.json",
+      "sha256": "e29bb9c7e0e9d2ba3034dd93b220c0d61d55a654a4bb919409a9a4ebff5c2c88",
+      "label": "T+21",
+      "mode": "local",
+      "trigger": "commit edde38c"
+    },
+    {
+      "file": "local/004-T+029.json",
+      "sha256": "d064f4a8494632b2007689afbbe102be0f4b0d5dd5d9063801e7b594701507ae",
+      "label": "T+29",
+      "mode": "local",
+      "trigger": "commit 6ee2281"
+    },
+    {
+      "file": "local/005-T+037.json",
+      "sha256": "e31b31ead5bf88378065261562eee2b04202914c00f147e4b6c5591b9bbe4ddb",
+      "label": "T+37",
+      "mode": "local",
+      "trigger": "commit 8e663bd"
+    },
+    {
+      "file": "local/006-T+040.json",
+      "sha256": "541847b4abfa23362955d77632fa0945310708a71a8fd30e1424bbda74b09b8f",
+      "label": "T+40",
+      "mode": "local",
+      "trigger": "checkpoint T+40"
+    },
+    {
+      "file": "local/007-T+040.json",
+      "sha256": "e9f0eeb013f202fcb4210334560a7ebe82fd4066e579bc59c7414d324be8d5ff",
+      "label": "T+40",
+      "mode": "local",
+      "trigger": "commit f1e0be7"
+    },
+    {
+      "file": "local/008-T+042.json",
+      "sha256": "9d4a107c6d81401f4591cca84b1cd1dbe81488579421ae132677ca6be22e8587",
+      "label": "T+42",
+      "mode": "local",
+      "trigger": "commit 1f2206b"
+    },
+    {
+      "file": "local/009-T+043.json",
+      "sha256": "5c759eef55bdc1a9f4a80425ab0a30b8bc35e640ecb04abea87562959815ae6c",
+      "label": "T+43",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at 1f2206b"
+    },
+    {
+      "file": "local/010-T+043.json",
+      "sha256": "373c65a9a71f98ab9d42e7edf1139def968519cc1182bd31b6c806ee402111bc",
+      "label": "T+43",
+      "mode": "local",
+      "trigger": "CI Build and test failure at 1f2206b"
+    },
+    {
+      "file": "local/011-T+043.json",
+      "sha256": "9a57b0bc35f00d86d1167b86ce7f9ce6f07d0a7a4124002305a15860b336ef53",
+      "label": "T+43",
+      "mode": "local",
+      "trigger": "commit ececa70"
+    },
+    {
+      "file": "local/012-T+044.json",
+      "sha256": "c49038c7f385bbb1cd824e415435f1af48b1a48524fe573368533f8d03a180a0",
+      "label": "T+44",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at ececa70"
+    },
+    {
+      "file": "local/013-T+045.json",
+      "sha256": "71d7ff735c95427516564e867c871d90fab45b716bd2bc6188f1d7cea66fb834",
+      "label": "T+45",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at ececa70"
+    },
+    {
+      "file": "local/014-T+046.json",
+      "sha256": "39fdca740f4ffe862abc8a804140bb3c6fdf7f67caea4388f481547c718b7904",
+      "label": "T+46",
+      "mode": "local",
+      "trigger": "CI Build and test success at ececa70"
+    },
+    {
+      "file": "local/015-T+047.json",
+      "sha256": "24510849cbae8c5d7b2c39811c904638d04798e9f3de8d603bb28782b8bfdf8f",
+      "label": "T+47",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at ececa70"
+    },
+    {
+      "file": "local/016-T+058.json",
+      "sha256": "df464e3bc7d136bf3c90e2c7e210f162f7e40cd84b32597482043918412f2fe7",
+      "label": "T+58",
+      "mode": "local",
+      "trigger": "CI Requirement verification failure at ececa70"
+    },
+    {
+      "file": "local/017-T+060.json",
+      "sha256": "a9a5644d21721825d048fab0e32c653396db44652a89c6864e34df44a401e37e",
+      "label": "T+60",
+      "mode": "local",
+      "trigger": "checkpoint T+60"
+    },
+    {
+      "file": "local/018-T+062.json",
+      "sha256": "b3637c85843ceb21af4d87713f6479d312efcbf49f0d20f0e6c1d1c6aed79fe1",
+      "label": "T+62",
+      "mode": "local",
+      "trigger": "commit 33d072d"
+    },
+    {
+      "file": "local/019-T+063.json",
+      "sha256": "7cb5e16f3bffff957b2732a20b98b940fc2586ead26add61641ef64a9afbd51a",
+      "label": "T+63",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at 33d072d"
+    },
+    {
+      "file": "local/020-T+064.json",
+      "sha256": "4dbb75a152431563af63f3364ab2796dd96d4b04e396cade0e8a97c89c27affa",
+      "label": "T+64",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at 33d072d"
+    },
+    {
+      "file": "local/021-T+065.json",
+      "sha256": "6d91a64fc526869987b1a98da70f740b0c972f08b576cd1add6e76f8c693ad77",
+      "label": "T+65",
+      "mode": "local",
+      "trigger": "CI Build and test success at 33d072d"
+    },
+    {
+      "file": "local/022-T+066.json",
+      "sha256": "a38d39febb10b18a5b54929dc9be175ab04fcb953317e3172ca7840f2c7e70aa",
+      "label": "T+66",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at 33d072d"
+    },
+    {
+      "file": "local/023-T+077.json",
+      "sha256": "c957014d9d3d43fb0bb36c30177331145162540924cc40c541de10d1421fb80a",
+      "label": "T+77",
+      "mode": "local",
+      "trigger": "CI Requirement verification success at 33d072d"
+    },
+    {
+      "file": "local/024-T+078.json",
+      "sha256": "0b7bf8613434475530c766eb950568c3f0f1f12f494c1041600fb587209f675e",
+      "label": "T+78",
+      "mode": "local",
+      "trigger": "commit 296b245"
+    },
+    {
+      "file": "local/025-T+078.json",
+      "sha256": "092655e7b4ffaf3a81590b14d90d9e1a4fbde707d6bc982dbba55e7d44129ee3",
+      "label": "T+78",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at 296b245"
+    },
+    {
+      "file": "local/026-T+079.json",
+      "sha256": "b2362e3edfbb4ce33458dabadb789e757df88890b5899dde6baeacd6e1ab1624",
+      "label": "T+79",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at 296b245"
+    },
+    {
+      "file": "local/027-T+080.json",
+      "sha256": "852ed39a23915a500f3271dd4aa1c199e0c8bbc2d6155396474875b2779ea03e",
+      "label": "T+80",
+      "mode": "local",
+      "trigger": "checkpoint T+80"
+    },
+    {
+      "file": "local/028-T+081.json",
+      "sha256": "e338f86feb51f40dddd1897aa8a875eb12d7ec669897891f0c0685201dd1b326",
+      "label": "T+81",
+      "mode": "local",
+      "trigger": "CI Build and test success at 296b245"
+    },
+    {
+      "file": "local/029-T+081.json",
+      "sha256": "01084d6a2378e3ff1b1143a35c2d555dfe4f588476147ad7be6e3a1cea30cabe",
+      "label": "T+81",
+      "mode": "local",
+      "trigger": "commit 39dc037"
+    },
+    {
+      "file": "local/030-T+081.json",
+      "sha256": "d7b5f730073a78184c9dd268428436b6accff8a17bf20cb90a1536b9a4aa998e",
+      "label": "T+81",
+      "mode": "local",
+      "trigger": "CI Deploy to GitHub Pages failure at 39dc037"
+    },
+    {
+      "file": "local/031-T+081.json",
+      "sha256": "9c5315da6a6cb48f570d5597ddfe4e9240ebf14de0bce21d3691eca7090f7090",
+      "label": "T+81",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at 39dc037"
+    },
+    {
+      "file": "local/032-T+081.json",
+      "sha256": "3fc64627ea9e1cd2b655d7ebf1a5be93cca39968d1558b1f30a73c3ec2571cdb",
+      "label": "T+81",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at 296b245"
+    },
+    {
+      "file": "local/033-T+082.json",
+      "sha256": "808ba5f4be646a59e957d71e07953ed29146a50f70b9941334a4bae83ed4b3fb",
+      "label": "T+82",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at 39dc037"
+    },
+    {
+      "file": "local/034-T+084.json",
+      "sha256": "ca998ac3ee65e014379c076f33defc6b72303cf633e50220431fc377b0a4456e",
+      "label": "T+84",
+      "mode": "local",
+      "trigger": "CI Build and test success at 39dc037"
+    },
+    {
+      "file": "local/035-T+087.json",
+      "sha256": "45a9217b488737903879f305b7b768306a286af2555b81530bb3e910696ba4b4",
+      "label": "T+87",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at 39dc037"
+    },
+    {
+      "file": "local/036-T+091.json",
+      "sha256": "d16e0d06010cf43918063dc4c00b8f55eab7aff94aa0b8e0bb5b6c5fe00acffd",
+      "label": "T+91",
+      "mode": "local",
+      "trigger": "CI Requirement verification success at 296b245"
+    },
+    {
+      "file": "local/037-T+093.json",
+      "sha256": "f1fcd1364aa8d2db1013cc817c3fe0f2791b7a51502e276d24670b5a32504c37",
+      "label": "T+93",
+      "mode": "local",
+      "trigger": "commit 5ef2908"
+    },
+    {
+      "file": "local/038-T+093.json",
+      "sha256": "bb3469785e36961474f9e36dda73603ac04d53a26a3cf940f9b90916464c9fd4",
+      "label": "T+93",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at 5ef2908"
+    },
+    {
+      "file": "local/039-T+094.json",
+      "sha256": "442a7346cc6753bc7a80feb882bad31b413b65b33c4f42e3ee2ea1638d5ef24b",
+      "label": "T+94",
+      "mode": "local",
+      "trigger": "CI Requirement verification success at 39dc037"
+    },
+    {
+      "file": "local/040-T+094.json",
+      "sha256": "03d895ddbc595bdd096f13516c600c4fb997d35095c68c725aab3f02d14ef3cc",
+      "label": "T+94",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at 5ef2908"
+    },
+    {
+      "file": "local/041-T+096.json",
+      "sha256": "2ffc5f08d98fa3107c73f8a9fa88ad68e053a37b2fb0d180c539a9aa4054243c",
+      "label": "T+96",
+      "mode": "local",
+      "trigger": "CI Build and test success at 5ef2908"
+    },
+    {
+      "file": "local/042-T+096.json",
+      "sha256": "1a79b65d126059e64a621c3beaa1aed1a00ec563b088f12ec70c881bbc7d766c",
+      "label": "T+96",
+      "mode": "local",
+      "trigger": "commit 13e1cf8"
+    },
+    {
+      "file": "local/043-T+097.json",
+      "sha256": "d6e7add1f1e5b01dc617287cfdc69405b9541cfc5b36f2ec502e4313bd6fc9ca",
+      "label": "T+97",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at 5ef2908"
+    },
+    {
+      "file": "local/044-T+097.json",
+      "sha256": "5cf595296cd4cb237851526a4695a47c6f1211f0581715475a812803c4c2933b",
+      "label": "T+97",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at 13e1cf8"
+    },
+    {
+      "file": "local/045-T+098.json",
+      "sha256": "0587089f57ebc9a19e746543d004fbf5f4721611e425aa6ad8aa9b1a0c3d39bd",
+      "label": "T+98",
+      "mode": "local",
+      "trigger": "CI Deploy to GitHub Pages success at 13e1cf8"
+    },
+    {
+      "file": "local/046-T+098.json",
+      "sha256": "f148546b63dcaf0d4f9fc19fe915efbf54419cb87da028e20a6660f80068e2df",
+      "label": "T+98",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at 13e1cf8"
+    },
+    {
+      "file": "local/047-T+099.json",
+      "sha256": "11acf2e84915ac29a5fec226390c07f7d98bc61ce9cd809dfc28770d4ac3be29",
+      "label": "T+99",
+      "mode": "local",
+      "trigger": "CI Build and test success at 13e1cf8"
+    },
+    {
+      "file": "local/048-T+100.json",
+      "sha256": "56e15d3f87f82601357638e03eb4023b7a05d836e3de8ef583f444a52e1fdcd8",
+      "label": "T+100",
+      "mode": "local",
+      "trigger": "checkpoint T+100"
+    },
+    {
+      "file": "local/049-T+104.json",
+      "sha256": "286b0ec77d97f3cf9e4bf249ca81762998b1a5753b9fc98246d8d43c5bf2edec",
+      "label": "T+104",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at 13e1cf8"
+    },
+    {
+      "file": "local/050-T+106.json",
+      "sha256": "514f309297ccdce98a36d123128947549f95657b2ea5dee3af21801980e08ff9",
+      "label": "T+106",
+      "mode": "local",
+      "trigger": "CI Requirement verification success at 5ef2908"
+    },
+    {
+      "file": "local/051-T+111.json",
+      "sha256": "aa9449908da62e22921cf7fcdb2e22b2b1e96a67c8916ca3ce7c759c23fd92e1",
+      "label": "T+111",
+      "mode": "local",
+      "trigger": "CI Requirement verification success at 13e1cf8"
+    },
+    {
+      "file": "local/052-T+111.json",
+      "sha256": "c6bbebad6ea271a46187753eaa5366a8df9fc08ccb54bf7851d2e436c952e572",
+      "label": "T+111",
+      "mode": "local",
+      "trigger": "commit ade66fc"
+    },
+    {
+      "file": "local/053-T+112.json",
+      "sha256": "048a487c15872c59b6f9b022f4db720aee0cdc3428676a5743040b16749b1def",
+      "label": "T+112",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at ade66fc"
+    },
+    {
+      "file": "local/054-T+113.json",
+      "sha256": "db1251cdeed9a773fc5ff423e1e050fe9ee004f14d142fa898f115a7e6b5c922",
+      "label": "T+113",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at ade66fc"
+    },
+    {
+      "file": "local/055-T+115.json",
+      "sha256": "cfc077132154ee44f6094a8bb724e382e722b8b185ed054a067292a2532f652c",
+      "label": "T+115",
+      "mode": "local",
+      "trigger": "checkpoint T+115"
+    },
+    {
+      "file": "local/056-T+115.json",
+      "sha256": "9504d84467d2d354c056049a4389213f60318b7929e0caa716565b369dd6f7dd",
+      "label": "T+115",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at ade66fc"
+    },
+    {
+      "file": "local/057-T+115.json",
+      "sha256": "a7b00a05eaba1da3eeb872fcfb360d216f84e2f4102734fa68b24c276e64e22f",
+      "label": "T+115",
+      "mode": "local",
+      "trigger": "CI Build and test success at ade66fc"
+    },
+    {
+      "file": "local/058-T+115.json",
+      "sha256": "513e9e2a53e022eb7f9b8a936ba0f0ce799ff63d73d8284e86aa541eb2f4f1ee",
+      "label": "T+115",
+      "mode": "local",
+      "trigger": "commit 0e76050"
+    },
+    {
+      "file": "local/059-T+116.json",
+      "sha256": "6b479fb7e975e86ee7ddefdcd326ebca14c3aa82a64269b4a2c445971c8f3b8d",
+      "label": "T+116",
+      "mode": "local",
+      "trigger": "CI Praxis validation success at 0e76050"
+    },
+    {
+      "file": "local/060-T+117.json",
+      "sha256": "94092f4ac2054d99dde8983602751df544aaeced04ab8343719370793a0389ee",
+      "label": "T+117",
+      "mode": "local",
+      "trigger": "CI Echelon foundations success at 0e76050"
+    },
+    {
+      "file": "local/061-T+117.json",
+      "sha256": "1ad86b600f7fe94f2af60b7c6b9f8519bb2b919aef5aac7177577df958a48392",
+      "label": "T+117",
+      "mode": "local",
+      "trigger": "CI Deploy to GitHub Pages success at 0e76050"
+    },
+    {
+      "file": "local/062-T+119.json",
+      "sha256": "875cdc3a6fb5275ba31e113c9d10582d22378e5cfd350105d4812b8abb23f277",
+      "label": "T+119",
+      "mode": "local",
+      "trigger": "CI Verification gate failure at 0e76050"
+    },
+    {
+      "file": "local/063-T+119.json",
+      "sha256": "10d5d9735b4e6e6f7ecbec3934be172c2fcf1993ec5ec9e291074e2ff5ea02ba",
+      "label": "T+119",
+      "mode": "local",
+      "trigger": "CI Build and test success at 0e76050"
+    },
+    {
+      "file": "local/064-T+127.json",
+      "sha256": "8cf2d57c872ebee77472aa1428fbf62e843fc2b42bae47aedf4b46af2dbb1848",
+      "label": "T+127",
+      "mode": "local",
+      "trigger": "CI Requirement verification success at ade66fc"
+    },
+    {
+      "file": "local/065-T+130.json",
+      "sha256": "8b09503e25b64c92bd6529b03fe1d267e7771580f8e02a86d53d4860beb2f033",
+      "label": "T+130",
+      "mode": "local",
+      "trigger": "CI Requirement verification success at 0e76050"
+    },
+    {
+      "file": "local/066-T+150.json",
+      "sha256": "5370be594184483099053617b8bdb0c9653afded91ff26ae45b7883539f3808f",
+      "label": "T+150",
+      "mode": "local",
+      "trigger": "checkpoint T+150"
+    },
+    {
+      "file": "remote/000-T+000.json",
+      "sha256": "1bc8b0abab6d4b0c21ee03f92a62b8cf3e625df0043c5ebc7e321876926f14bd",
+      "label": "T+0",
+      "mode": "remote",
+      "trigger": "checkpoint T+0"
+    },
+    {
+      "file": "remote/001-T+020.json",
+      "sha256": "ae8065405746224e124d5b3c8afb4d02ce2884a30484a11f2030f70e350e3a13",
+      "label": "T+20",
+      "mode": "remote",
+      "trigger": "checkpoint T+20"
+    },
+    {
+      "file": "remote/002-T+040.json",
+      "sha256": "4265b76be7c6ccba71b47f12ce74b995e050c1e1439ee5553900c1368ec0ea26",
+      "label": "T+40",
+      "mode": "remote",
+      "trigger": "checkpoint T+40"
+    },
+    {
+      "file": "remote/003-T+043.json",
+      "sha256": "789af75a19543225f5b30f2ebf2b67ece831eea69e05c6288b257b2ee6c0d8a3",
+      "label": "T+43",
+      "mode": "remote",
+      "trigger": "commit 8001e7c; commit edde38c; commit 6ee2281; commit 8e663bd; commit f1e0be7; commit 1f2206b"
+    },
+    {
+      "file": "remote/004-T+043.json",
+      "sha256": "cd3416844b1f8ff76f3650763d857c56cf3d57617199e5e14fe570a823d96577",
+      "label": "T+43",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at 1f2206b"
+    },
+    {
+      "file": "remote/005-T+043.json",
+      "sha256": "029fcf8969d5fd5e14c8d1ad71aaa2200d6306c323babe18ea764ed438f4358b",
+      "label": "T+43",
+      "mode": "remote",
+      "trigger": "CI Build and test failure at 1f2206b"
+    },
+    {
+      "file": "remote/006-T+043.json",
+      "sha256": "c2c356e61d417664cd4db55007ed6cd6a60c2bf76388d660c6d86d36fdadbd29",
+      "label": "T+43",
+      "mode": "remote",
+      "trigger": "commit ececa70"
+    },
+    {
+      "file": "remote/007-T+044.json",
+      "sha256": "5167cac579d50fe43d947b7ab132f11fa38f1d52954b9c5496e72c55413f1d0b",
+      "label": "T+44",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at ececa70"
+    },
+    {
+      "file": "remote/008-T+045.json",
+      "sha256": "6c5a32d3c1fa196a8fad6d95a42357041e5ab1f2dd9eecc2e73d8b1ec7416835",
+      "label": "T+45",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at ececa70"
+    },
+    {
+      "file": "remote/009-T+046.json",
+      "sha256": "46c829f23f98ee2f7e9e4bb3adf18017b81b3d0b1cee4ee59b5a4c489af17f71",
+      "label": "T+46",
+      "mode": "remote",
+      "trigger": "CI Build and test success at ececa70"
+    },
+    {
+      "file": "remote/010-T+047.json",
+      "sha256": "74ebcdbb21c026bd8c74e06b496728bf4ec71944f8780817b119f7a19d0076f0",
+      "label": "T+47",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at ececa70"
+    },
+    {
+      "file": "remote/011-T+058.json",
+      "sha256": "0a9484feff4eb8441391e816e0b43a54e55474d42170132be3e85dd21ff22c95",
+      "label": "T+58",
+      "mode": "remote",
+      "trigger": "CI Requirement verification failure at ececa70"
+    },
+    {
+      "file": "remote/012-T+060.json",
+      "sha256": "1a62228065820c195515dc3cc14eea38706d36eb2c0b596d7208ddc6861a3f26",
+      "label": "T+60",
+      "mode": "remote",
+      "trigger": "checkpoint T+60"
+    },
+    {
+      "file": "remote/013-T+063.json",
+      "sha256": "47fada40ba9531641cfeba0e0fb386722b5fc39fbf3861eb178011b65c3d27e0",
+      "label": "T+63",
+      "mode": "remote",
+      "trigger": "commit 33d072d"
+    },
+    {
+      "file": "remote/014-T+063.json",
+      "sha256": "92b77c54a514c60d18eafb124955dd300f2799dac5b71767ee92e8329ace2977",
+      "label": "T+63",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at 33d072d"
+    },
+    {
+      "file": "remote/015-T+064.json",
+      "sha256": "c4f35e7aee627f96d11930f5db878d3913f47a2132dc2c7ae4d4607823cf5492",
+      "label": "T+64",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at 33d072d"
+    },
+    {
+      "file": "remote/016-T+065.json",
+      "sha256": "de80bbacdfea2c8e3f3055ff8941f603dd6df2b659900df0a4125d27006e200b",
+      "label": "T+65",
+      "mode": "remote",
+      "trigger": "CI Build and test success at 33d072d"
+    },
+    {
+      "file": "remote/017-T+066.json",
+      "sha256": "91790cbb822c50311add389c06481ae3b2c39df6736d25176eca2315ae64ed95",
+      "label": "T+66",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at 33d072d"
+    },
+    {
+      "file": "remote/018-T+077.json",
+      "sha256": "95b23469758d750bbe77254a7d08ee5141deed1d962a9cd441b0909553a87f91",
+      "label": "T+77",
+      "mode": "remote",
+      "trigger": "CI Requirement verification success at 33d072d"
+    },
+    {
+      "file": "remote/019-T+078.json",
+      "sha256": "1c51bc437a20c9c7296bfe285c8f0d56ea507a1c6ec6b4e833c8ae6b657709c1",
+      "label": "T+78",
+      "mode": "remote",
+      "trigger": "commit 296b245"
+    },
+    {
+      "file": "remote/020-T+078.json",
+      "sha256": "39ee9c682923ccedb729e22d6b7090e7375ad1c4abe2ff802492abe0ac67ce97",
+      "label": "T+78",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at 296b245"
+    },
+    {
+      "file": "remote/021-T+079.json",
+      "sha256": "9b749861508380caacf1ba003807e3f6f957f584b4e1aa649a27d6284c7c8f8a",
+      "label": "T+79",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at 296b245"
+    },
+    {
+      "file": "remote/022-T+080.json",
+      "sha256": "8703f3398112f1bc89b66494559841b1e855389542517fa885c29324a1f29d3c",
+      "label": "T+80",
+      "mode": "remote",
+      "trigger": "checkpoint T+80"
+    },
+    {
+      "file": "remote/023-T+081.json",
+      "sha256": "3461971649c2f271227db4a20396cc40614ec5f6f6885b1cc0a0cc867a375f00",
+      "label": "T+81",
+      "mode": "remote",
+      "trigger": "CI Build and test success at 296b245"
+    },
+    {
+      "file": "remote/024-T+081.json",
+      "sha256": "abd9161fa5f5450ac0ea975a23344bd59c01d7fdd561a534bc0560ae4eac5b39",
+      "label": "T+81",
+      "mode": "remote",
+      "trigger": "commit 39dc037"
+    },
+    {
+      "file": "remote/025-T+081.json",
+      "sha256": "75e110be763b973621479c30cc9c0fa8f366a1cc24d0a9524a9d63738d1e2425",
+      "label": "T+81",
+      "mode": "remote",
+      "trigger": "CI Deploy to GitHub Pages failure at 39dc037"
+    },
+    {
+      "file": "remote/026-T+081.json",
+      "sha256": "85518cc762cb04af720686f3c6b53737cef83fd57f53af35ed32b8c4a9dffb7f",
+      "label": "T+81",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at 39dc037"
+    },
+    {
+      "file": "remote/027-T+081.json",
+      "sha256": "71d27afc7742729bd26d7b7655a7ec87286d14704e5b0b61b9a41ae8db3c67dd",
+      "label": "T+81",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at 296b245"
+    },
+    {
+      "file": "remote/028-T+082.json",
+      "sha256": "c0622a946759219c7c6354f7e4850b0d75fcbfe70bc038e8140caf3e4a40012d",
+      "label": "T+82",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at 39dc037"
+    },
+    {
+      "file": "remote/029-T+084.json",
+      "sha256": "e482e998cee032f1e508163822dc7f261b442049cd83c3ef5447d69d55583b01",
+      "label": "T+84",
+      "mode": "remote",
+      "trigger": "CI Build and test success at 39dc037"
+    },
+    {
+      "file": "remote/030-T+087.json",
+      "sha256": "4046279bc6d86a4758c7ae77c04020b80a864e55cb534ad3f5da905b147a242b",
+      "label": "T+87",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at 39dc037"
+    },
+    {
+      "file": "remote/031-T+091.json",
+      "sha256": "7c905f88ae54cba73aeeeb0c73bca1b94c60a2019b0ef35b94d7927f5299d179",
+      "label": "T+91",
+      "mode": "remote",
+      "trigger": "CI Requirement verification success at 296b245"
+    },
+    {
+      "file": "remote/032-T+093.json",
+      "sha256": "f2a243ca26b90ca13f187e4069f2f1fb89fcb40a45e3a3000c9d588ad85a600d",
+      "label": "T+93",
+      "mode": "remote",
+      "trigger": "commit 5ef2908"
+    },
+    {
+      "file": "remote/033-T+093.json",
+      "sha256": "990a53b5caa665264c0dd99d06153ef1951edd46b9c229cb80b64706579be63c",
+      "label": "T+93",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at 5ef2908"
+    },
+    {
+      "file": "remote/034-T+094.json",
+      "sha256": "83942b50d2f9c87711b552bdc8ceea7e3f0ce23243125f57d1ed6bee2c6dc431",
+      "label": "T+94",
+      "mode": "remote",
+      "trigger": "CI Requirement verification success at 39dc037"
+    },
+    {
+      "file": "remote/035-T+094.json",
+      "sha256": "f5f61906b9edd7b19f030f102ed5cf9279a5c850789bd7be0418660c8d2ce2e0",
+      "label": "T+94",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at 5ef2908"
+    },
+    {
+      "file": "remote/036-T+096.json",
+      "sha256": "a765a58fe89c8290d5507f35fa6543cbba748264fa1231fd451d946b39abf33f",
+      "label": "T+96",
+      "mode": "remote",
+      "trigger": "CI Build and test success at 5ef2908"
+    },
+    {
+      "file": "remote/037-T+096.json",
+      "sha256": "e024c40de0ba424ecd75b616cfd0cc97ba38bc65b8b6b4cffe2887acec610fe4",
+      "label": "T+96",
+      "mode": "remote",
+      "trigger": "commit 13e1cf8"
+    },
+    {
+      "file": "remote/038-T+097.json",
+      "sha256": "589c974a9babc8dabcca389abc52c872363225cdc3cd8d824f2b6fdc85373979",
+      "label": "T+97",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at 5ef2908"
+    },
+    {
+      "file": "remote/039-T+097.json",
+      "sha256": "87783af2f5ecf32c9128d45db4d5ee52ce9022dbfbf24a288a5428490775f777",
+      "label": "T+97",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at 13e1cf8"
+    },
+    {
+      "file": "remote/040-T+098.json",
+      "sha256": "7fed5bca8facefc174cbe90bae629eb832d616f3979e0452c4e677b05df4524d",
+      "label": "T+98",
+      "mode": "remote",
+      "trigger": "CI Deploy to GitHub Pages success at 13e1cf8"
+    },
+    {
+      "file": "remote/041-T+098.json",
+      "sha256": "e2962043d387285bb03aff90ec91041dcaf58c3e9e1f9ee6e11c1e9d02871bd1",
+      "label": "T+98",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at 13e1cf8"
+    },
+    {
+      "file": "remote/042-T+099.json",
+      "sha256": "0c29714a0733eda5574f180e7ac0181a6bf75939a87c20df2a107ff011318e07",
+      "label": "T+99",
+      "mode": "remote",
+      "trigger": "CI Build and test success at 13e1cf8"
+    },
+    {
+      "file": "remote/043-T+100.json",
+      "sha256": "c98123a41a57d54f208284bf9358ed38124b39e222a5999a274894ddb1ec6b3b",
+      "label": "T+100",
+      "mode": "remote",
+      "trigger": "checkpoint T+100"
+    },
+    {
+      "file": "remote/044-T+104.json",
+      "sha256": "3954e225b3ac9d71c41ab178d49312e3487db1a64fb69f08fbc3274a5943412d",
+      "label": "T+104",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at 13e1cf8"
+    },
+    {
+      "file": "remote/045-T+106.json",
+      "sha256": "82096a2f9043b542218b7831beadf23e36f37fc9c247ac84cff0bad753efe851",
+      "label": "T+106",
+      "mode": "remote",
+      "trigger": "CI Requirement verification success at 5ef2908"
+    },
+    {
+      "file": "remote/046-T+111.json",
+      "sha256": "4d0e46930fd20fa07203d7a2f228ecbd39b459ca085266835cd33157e9144bb1",
+      "label": "T+111",
+      "mode": "remote",
+      "trigger": "CI Requirement verification success at 13e1cf8"
+    },
+    {
+      "file": "remote/047-T+112.json",
+      "sha256": "419d9dfe37a56b7555a501ef359626d55144bd7525e10982c07dc53822063f85",
+      "label": "T+112",
+      "mode": "remote",
+      "trigger": "commit ade66fc"
+    },
+    {
+      "file": "remote/048-T+112.json",
+      "sha256": "7115fd290e73e0e7b4b976a8b8a9c347ed683008fce7ac3087c72e525d520935",
+      "label": "T+112",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at ade66fc"
+    },
+    {
+      "file": "remote/049-T+113.json",
+      "sha256": "c1abf6db53e4074d4de9e4add92e419410500dc089a0d5c74635e8ece63a4d67",
+      "label": "T+113",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at ade66fc"
+    },
+    {
+      "file": "remote/050-T+115.json",
+      "sha256": "165e2ec67e4eeeab970826fdd76fdb08fc64f5ff60f383f8ce8155d8c7902518",
+      "label": "T+115",
+      "mode": "remote",
+      "trigger": "checkpoint T+115"
+    },
+    {
+      "file": "remote/051-T+115.json",
+      "sha256": "f02fabacb6776a75447d5d8e1e57776ac91ae7127933eaa08b7b1e00cad7d0cd",
+      "label": "T+115",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at ade66fc"
+    },
+    {
+      "file": "remote/052-T+115.json",
+      "sha256": "486dcb92de6cc5437f91952d3dfeb4645cf9a4ce35f91d4bb93fee54c544dba5",
+      "label": "T+115",
+      "mode": "remote",
+      "trigger": "CI Build and test success at ade66fc"
+    },
+    {
+      "file": "remote/053-T+115.json",
+      "sha256": "6d5218664f3e635a3771790fe240a5301195254cc16f3c2df558d04d75cc26d5",
+      "label": "T+115",
+      "mode": "remote",
+      "trigger": "commit 0e76050"
+    },
+    {
+      "file": "remote/054-T+116.json",
+      "sha256": "1c7fdeebc89f84fd5c2f1c9d591cb7ce6ffa72ccb89226683d516ed7a3a51198",
+      "label": "T+116",
+      "mode": "remote",
+      "trigger": "CI Praxis validation success at 0e76050"
+    },
+    {
+      "file": "remote/055-T+117.json",
+      "sha256": "ec0b2968de158b196882c8316fe097b109a29baca471349a76e9fb87ed5ccce0",
+      "label": "T+117",
+      "mode": "remote",
+      "trigger": "CI Echelon foundations success at 0e76050"
+    },
+    {
+      "file": "remote/056-T+117.json",
+      "sha256": "9cfb1330626b4b0d3e207235c21b3dca52b91601d041d25e223477f71ffc11e0",
+      "label": "T+117",
+      "mode": "remote",
+      "trigger": "CI Deploy to GitHub Pages success at 0e76050"
+    },
+    {
+      "file": "remote/057-T+119.json",
+      "sha256": "9c704829531997d229ce633904cfaa97a7b7bbd7ae57853467b7abbf7ddf1f7f",
+      "label": "T+119",
+      "mode": "remote",
+      "trigger": "CI Verification gate failure at 0e76050"
+    },
+    {
+      "file": "remote/058-T+119.json",
+      "sha256": "98bc7f91703e3987c319533c12d17ce4f99fac4304ed382859029bc8f5397fba",
+      "label": "T+119",
+      "mode": "remote",
+      "trigger": "CI Build and test success at 0e76050"
+    },
+    {
+      "file": "remote/059-T+127.json",
+      "sha256": "568ae9ab0df557abfad37b70709521a0a1b5cbeb4f0f951833bf46ea3ff23bc8",
+      "label": "T+127",
+      "mode": "remote",
+      "trigger": "CI Requirement verification success at ade66fc"
+    },
+    {
+      "file": "remote/060-T+130.json",
+      "sha256": "c9e23aa4e2e9e41be56c1ec05941b2a9895e3f0e8d1d80e43eb93b30b98edc0a",
+      "label": "T+130",
+      "mode": "remote",
+      "trigger": "CI Requirement verification success at 0e76050"
+    },
+    {
+      "file": "remote/061-T+150.json",
+      "sha256": "cc8828eafd5cf00647a666c4a777144c050c2cedf05a43cc169c39e5bab4be58",
+      "label": "T+150",
+      "mode": "remote",
+      "trigger": "checkpoint T+150"
+    }
+  ]
+}
