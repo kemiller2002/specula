@@ -22,6 +22,7 @@ module Evidence =
         | DefectTable
         | OrdoDecisionLog
         | RequirementVerificationReport
+        | ObserverFindingsReport
 
     type Adapter =
         { Id: string
@@ -44,7 +45,9 @@ module Evidence =
           { Id = "ordo-decisions"; Kind = OrdoDecisionLog; Path = OrdoDecisions.path; Schema = OrdoDecisions.schema
             Description = "Ordo pattern decision events (JSONL)" }
           { Id = "requirement-verification"; Kind = RequirementVerificationReport; Path = RequirementVerification.path; Schema = RequirementVerification.schema
-            Description = "Requirement verification report (per requirement and obligation)" } ]
+            Description = "Requirement verification report (per requirement and obligation)" }
+          { Id = "observer-findings"; Kind = ObserverFindingsReport; Path = ObserverFindings.path; Schema = ObserverFindings.schema
+            Description = "Rehearsal observer findings (read-only observer, published by the owner)" } ]
 
     let adapterVersion = "specula.evidence-adapters/1"
 
@@ -82,6 +85,7 @@ module Evidence =
         | Corrections of Correction list
         | OrdoDecisionEvents of OrdoDecisions.Summary
         | RequirementVerificationResult of RequirementVerification.Report
+        | ObserverFindingsResult of ObserverFindings.Report
 
     type SourceOutcome =
         | NotFetched
@@ -265,7 +269,7 @@ module Evidence =
                     if summary.UnsupportedLines > 0 then Unsupported "no ordo.decision-event/1 lines"
                     else Invalid "no readable ordo.decision-event/1 lines"
                 else Parsed(OrdoDecisionEvents summary)
-            | Traceability | AcceptanceLedger | Kickoff | RequirementVerificationReport ->
+            | Traceability | AcceptanceLedger | Kickoff | RequirementVerificationReport | ObserverFindingsReport ->
                 match Json.tryParse text with
                 | None -> Invalid "not valid JSON"
                 | Some json ->
@@ -273,6 +277,7 @@ module Evidence =
                     | Traceability -> withSchema adapter json parseTraceability
                     | AcceptanceLedger -> withSchema adapter json parseAcceptance
                     | RequirementVerificationReport -> withSchema adapter json parseRequirementVerification
+                    | ObserverFindingsReport -> withSchema adapter json (fun j -> match ObserverFindings.parse j with Ok r -> Parsed(ObserverFindingsResult r) | Error reason -> Invalid reason)
                     | _ -> withSchema adapter json parseKickoff
 
     let rawUrl (repo: RepoId) (sha: string) (path: string) =
@@ -288,6 +293,7 @@ module Evidence =
     let requirements sources = sources |> pick (function Requirements(_, r) -> Some r | _ -> None)
     let acceptance sources = sources |> pick (function Acceptance(_, r) -> Some r | _ -> None)
     let decisions sources = sources |> pick (function Decisions d -> Some d | _ -> None)
+    let observerFindings sources = sources |> pick (function ObserverFindingsResult r -> Some r | _ -> None)
     let corrections sources = sources |> pick (function Corrections c -> Some c | _ -> None)
     let kickoff sources = sources |> pick (function KickoffRecord k -> Some k | _ -> None)
     let ordoDecisions sources = sources |> pick (function OrdoDecisionEvents s -> Some s | _ -> None)
@@ -303,6 +309,7 @@ module Evidence =
         | Parsed(Corrections c) -> $"Supported · {List.length c} corrections"
         | Parsed(OrdoDecisionEvents s) -> $"Supported · {s.Evaluated} decisions evaluated"
         | Parsed(RequirementVerificationResult r) -> $"Supported · {List.length r.Requirements} requirements"
+        | Parsed(ObserverFindingsResult r) -> $"Supported · {r.Blocking} blocking, {r.Warnings} warning observer finding(s)"
         | Missing -> "Not found"
         | Unsupported found -> $"Unsupported schema ({found})"
         | Invalid reason -> $"Parse error: {reason}"
