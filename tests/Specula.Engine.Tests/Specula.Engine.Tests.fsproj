@@ -12,6 +12,7 @@
     <Compile Include="EventsTests.fs" />
     <Compile Include="EvidenceTests.fs" />
     <Compile Include="OrdoDecisionsTests.fs" />
+    <Compile Include="ObserverFindingsTests.fs" />
     <Compile Include="MetricsTests.fs" />
     <Compile Include="PreferencesTests.fs" />
     <Compile Include="TimeTests.fs" />

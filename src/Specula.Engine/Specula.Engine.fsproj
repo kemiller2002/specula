@@ -20,6 +20,7 @@
     <Compile Include="Events.fs" />
     <Compile Include="OrdoDecisions.fs" />
     <Compile Include="RequirementVerification.fs" />
+    <Compile Include="ObserverFindings.fs" />
     <Compile Include="Evidence.fs" />
     <Compile Include="Preferences.fs" />
     <Compile Include="Metrics.fs" />
