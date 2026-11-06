@@ -86,6 +86,7 @@ module View =
           t "navVerification" (current Verification)
           t "navRequirements" (current Requirements)
           t "navReplay" (current Replay)
+          t "navObserver" (current Observer)
           t "navSettings" (current Settings)
           t "navAbout" (current About) ]
 
@@ -97,6 +98,7 @@ module View =
           f "hideVerification" (hide Verification)
           f "hideRequirements" (hide Requirements)
           f "hideReplay" (hide Replay)
+          f "hideObserver" (hide Observer)
           f "hideSettings" (hide Settings)
           f "hideAbout" (hide About)
           f "starting" (not model.Started)
@@ -916,6 +918,111 @@ module View =
           f "hasEndpoints" (not endpoints.IsEmpty)
           t "requestCount" $"{model.RequestCount} GitHub requests issued in this session (304 Not Modified answers do not count against GitHub's limit)." ]
 
+
+    // ---- observer replay (historical; separate from live monitoring) ----
+
+    module RVw = Specula.Engine.Observer.ReplayView
+
+    let private severityState (severity: string) =
+        match severity with
+        | "critical" -> "blocked"
+        | "warning" -> "attention"
+        | _ -> "unknown"
+
+    let private severityLabel (severity: string) =
+        match severity with
+        | "critical" -> "Critical"
+        | "warning" -> "Warning"
+        | _ -> "Informational"
+
+    let private recoveryState (r: string) =
+        match r with
+        | "ready" -> "ok", "Ready"
+        | "partial" -> "attention", "Partial"
+        | "insufficient" -> "blocked", "Insufficient"
+        | _ -> "unknown", "Unknown"
+
+    let private pct (n: int) (d: int) = if d <= 0 then "—" else string (n * 100 / d) + "%"
+
+    let observerEntries (model: Model) : Entry list =
+        let obs = model.Observer
+        let report = match obs.Data with ObserverLoaded r -> Some r | _ -> None
+        let mode = report |> Option.bind (fun r -> RVw.modeOf r obs.Mode)
+        let index = mode |> Option.map (fun m -> RVw.selectIndex m obs.Index)
+        let cp = Option.map2 (fun (m: RVw.ModeView) k -> m.Checkpoints.[k]) mode index
+        let time = Option.map (fun d -> $"{Time.utc d} ({Time.local model.Zone d})") >> Option.defaultValue "Unknown"
+        let modeLabel code = if code = "remote" then "Remote (only what GitHub showed)" else "Local (builder commits as made)"
+        let modeItems =
+            [ "local"; "remote" ]
+            |> List.map (fun m -> item [ pt "id" m; pt "value" m; pt "label" (modeLabel m); pf "selected" (Some m = (mode |> Option.map (fun x -> x.Mode))) ])
+        let checkpointItems =
+            match mode, index with
+            | Some m, Some k ->
+                m.Checkpoints
+                |> List.mapi (fun i c ->
+                    let tag = if c.NewAlerts > 0 then $" · {c.NewAlerts} new alert(s)" else ""
+                    item [ pt "id" (string i); pt "value" (string i); pt "label" $"{c.Label} · {c.Trigger}{tag}"; pf "selected" (i = k) ])
+            | _ -> []
+        let get f fallback = cp |> Option.map f |> Option.defaultValue fallback
+        let alerts = get (fun c -> c.Alerts) []
+        let blockers = get (fun c -> c.Blockers) []
+        let missing = get (fun c -> c.RecoveryMissing) []
+        let rState, rLabel = recoveryState (get (fun c -> c.Recovery) "")
+        let critical = alerts |> List.filter (fun a -> a.Severity = "critical") |> List.length
+        let warning = alerts |> List.filter (fun a -> a.Severity = "warning") |> List.length
+        let handoff = report |> Option.bind (fun r -> r.Handoff)
+        [ f "obsLoading" (match obs.Data with ObserverLoading | ObserverNotRequested -> true | _ -> false)
+          f "obsLoaded" report.IsSome
+          f "obsNotLoaded" report.IsNone
+          f "obsUnavailable" (match obs.Data with ObserverUnavailable _ -> true | _ -> false)
+          t "obsUnavailableText" (match obs.Data with ObserverUnavailable r -> r | _ -> "")
+          t "obsRepository" (report |> Option.map (fun r -> r.Repository) |> Option.defaultValue "")
+          t "obsT0" (report |> Option.bind (fun r -> r.T0) |> time)
+          t "obsDeadline" (report |> Option.bind (fun r -> r.Deadline) |> time)
+          t "obsBudget" (report |> Option.map (fun r -> $"{r.Budget} minutes") |> Option.defaultValue "")
+          t "obsScopeDigest" (report |> Option.map (fun r -> r.ScopeDigest.Substring(0, min 12 r.ScopeDigest.Length)) |> Option.defaultValue "")
+          items "obsModes" modeItems
+          t "obsModeHelp" (if obs.Mode = "remote" then "Remote: a commit counts only once a CI run on it or a descendant exists (an upper bound on push time)." else "Local: each commit is visible at its commit time, as an observer of the builder's working copy would see it.")
+          items "obsCheckpoints" checkpointItems
+          t "obsLabel" (get (fun c -> c.Label) "")
+          t "obsAt" (cp |> Option.bind (fun c -> c.At) |> time)
+          t "obsTrigger" (get (fun c -> c.Trigger) "")
+          t "obsElapsed" (get (fun c -> $"{c.Elapsed} min") "")
+          t "obsRemaining" (get (fun c -> $"{c.Remaining} min") "")
+          t "obsHead" (get (fun c -> c.Head |> Option.map Repo.shortSha |> Option.defaultValue "No builder commit visible") "")
+          t "obsLastCommitAt" (cp |> Option.bind (fun c -> c.LastCommitAt) |> time)
+          t "obsScope" (get (fun c -> $"{c.CodeCommitted} of {c.Mandatory} mandatory requirements have committed code ({pct c.CodeCommitted c.Mandatory})") "")
+          t "obsScopeDetail" (get (fun c -> $"Demonstrated by a passing CI test run: {c.Demonstrated}. Code is not proof of completion.") "")
+          t "obsVerified" (get (fun c -> $"{c.Verified} of {c.Mandatory} mandatory requirements verified ({pct c.Verified c.Mandatory})") "")
+          t "obsVerifiedDetail" (get (fun c -> $"Frozen v4.1.2 plan: {c.VerifiedFrozenPlan} of {c.FrozenPlanMandatory}. Content catalog: {c.VerifiedCatalog} of {c.CatalogMandatory}.") "")
+          t "obsCounts" $"{critical} critical · {warning} warning"
+          items "obsBlockers" (blockers |> List.mapi (fun i b -> item [ pt "id" (string i); pt "text" b ]))
+          f "obsNoBlockers" blockers.IsEmpty
+          items
+              "obsAlerts"
+              (alerts
+               |> List.mapi (fun i a ->
+                   item
+                       [ pt "id" (string i)
+                         pt "severity" (severityLabel a.Severity)
+                         pt "state" (severityState a.Severity)
+                         pt "rule" a.Rule
+                         pt "title" a.Title
+                         pt "intervention" (if a.Intervention then "Owner intervention recommended now" else "Investigate; no immediate intervention") ]))
+          f "obsNoAlerts" alerts.IsEmpty
+          t "obsRecovery" rLabel
+          t "obsRecoveryState" rState
+          items "obsRecoveryMissing" (missing |> List.mapi (fun i m -> item [ pt "id" (string i); pt "text" m ]))
+          f "obsRecoveryComplete" missing.IsEmpty
+          t "obsAction" (get (fun c -> c.RecommendedAction) "")
+          f "obsHasHandoff" handoff.IsSome
+          f "obsNoHandoff" handoff.IsNone
+          t "obsHandoffAt" (handoff |> Option.bind (fun h -> h.At) |> time)
+          t "obsHandoffCommit" (handoff |> Option.bind (fun h -> h.CurrentCommit) |> Option.map Repo.shortSha |> Option.defaultValue "")
+          t "obsHandoffRemaining" (handoff |> Option.map (fun h -> string h.RemainingMandatory) |> Option.defaultValue "")
+          t "obsHandoffConsistent" (handoff |> Option.map (fun h -> if h.Consistent then "Consistent with the evidence at hand-off" else "Inconsistent: see RECOVERY-HANDOFF.md") |> Option.defaultValue "")
+          items "obsHandoffActions" (handoff |> Option.map (fun h -> h.NextActions) |> Option.defaultValue [] |> List.mapi (fun i a -> item [ pt "id" (string i); pt "text" a ])) ]
+
     let project (model: Model) : ViewState =
         let snapshot = Model.currentSnapshot model
         let events = snapshot |> Option.map Model.events |> Option.defaultValue []
@@ -930,6 +1037,7 @@ module View =
           requirementVerificationEntries model snapshot
           replay model snapshot events
           settings model snapshot
-          about model snapshot ]
+          about model snapshot
+          observerEntries model ]
         |> List.concat
         |> Map.ofList

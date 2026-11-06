@@ -20,6 +20,15 @@
     <Compile Include="Events.fs" />
     <Compile Include="OrdoDecisions.fs" />
     <Compile Include="RequirementVerification.fs" />
+    <Compile Include="Observer/Types.fs" />
+    <Compile Include="Observer/ReadOnly.fs" />
+    <Compile Include="Observer/Decode.fs" />
+    <Compile Include="Observer/Replay.fs" />
+    <Compile Include="Observer/Rules.fs" />
+    <Compile Include="Observer/Alerts.fs" />
+    <Compile Include="Observer/Handoff.fs" />
+    <Compile Include="Observer/Engine.fs" />
+    <Compile Include="Observer/ReplayView.fs" />
     <Compile Include="ObserverFindings.fs" />
     <Compile Include="Evidence.fs" />
     <Compile Include="Preferences.fs" />

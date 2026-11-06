@@ -1,0 +1,8 @@
+{
+  "schema": "specula.observer-compute/1",
+  "replayWallMs": 748,
+  "replayCpuMs": 769,
+  "evaluations": 129,
+  "modelCalls": 0,
+  "note": "The observer is deterministic: no language-model call is made during replay or collection. Wall and CPU time are for this process on the machine that ran it."
+}

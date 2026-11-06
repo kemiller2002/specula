@@ -31,6 +31,8 @@ module Update =
         | ReplayFilter of string
         | ReplayUseCompetition
         | TogglePresentation
+        | ObserverMode of string
+        | ObserverCheckpoint of string
         | KickoffChanged of string
         | DurationChanged of string
         | CheckpointChanged of milestone: string * value: string
@@ -106,7 +108,7 @@ module Update =
             Evidence.registry
             |> List.tryFind (fun a -> a.Id = adapterId)
             |> Option.map (fun a -> Evidence.rawUrl repo sha a.Path, HttpResponseKind.Text)
-        | LoadPreferences | SavePreferences -> None
+        | LoadPreferences | SavePreferences | FetchObserverReplay -> None
 
     let private fetch (repo: RepoId) (request: Request) (model: Model) : Step =
         let snapshot = match model.Snapshot with Some s when RepoId.same s.Repo repo -> Some s | _ -> None
@@ -190,6 +192,7 @@ module Update =
         | FetchCommits 1 | FetchPulls | FetchRuns | FetchDeployments -> 2
         | FetchHeadChecks _ | FetchDeploymentStatuses _ | FetchEvidence _ -> 3
         | RecheckHead -> 4
+        | FetchObserverReplay -> 0
         | FetchCommits _ -> 0
         | LoadPreferences | SavePreferences -> 0
 
@@ -335,6 +338,7 @@ module Update =
         | FetchDeploymentStatuses _ -> "deployment statuses"
         | FetchEvidence(id, _) -> $"evidence:{id}"
         | RecheckHead -> "HEAD recheck"
+        | FetchObserverReplay -> "observer replay"
         | LoadPreferences | SavePreferences -> "storage"
 
     let private failureStatus fetched =
@@ -449,9 +453,26 @@ module Update =
             model |> withSnapshot (setEndpoint key (EndpointEmpty "not available for this repository"))
         | _ -> fail ()
 
+    /// The observer replay file is Specula's own static data: it is not bound
+    /// to a repository or a refresh generation.
+    let private onObserverReplay (outcome: EffectOutcome) (model: Model) : Step =
+        let data =
+            match outcome with
+            | EffectOutcome.Success(200L, RawJson body, _) ->
+                match Specula.Engine.Observer.ReplayView.parse body with
+                | Ok report -> ObserverLoaded report
+                | Error reason -> ObserverUnavailable $"Replay data could not be read: {reason}"
+            | EffectOutcome.Success(status, _, _) -> ObserverUnavailable $"Replay data not available (HTTP {status})"
+            | EffectOutcome.Failure(HttpFailureReason.Network, _) -> ObserverUnavailable "Replay data not available: network unavailable"
+            | EffectOutcome.Failure(_, _) -> ObserverUnavailable "Replay data not available"
+            | _ -> ObserverUnavailable "Replay data not available"
+        just { model with Observer = { model.Observer with Data = data } }
+
     let private onHttp (cid: string) (outcome: EffectOutcome) (model: Model) : Step =
         match model.Pending |> Map.tryFind cid with
         | None -> just model
+        | Some pending when pending.Request = FetchObserverReplay ->
+            onObserverReplay outcome { model with Pending = model.Pending |> Map.remove cid }
         | Some pending ->
             let model = { model with Pending = model.Pending |> Map.remove cid }
             let current =
@@ -496,7 +517,7 @@ module Update =
     let private screenFor (requested: Screen option) (model: Model) : Screen =
         match requested, model.Selection with
         | Some Picker, _ -> Picker
-        | Some(Settings | About as s), _ -> s
+        | Some(Settings | About | Observer as s), _ -> s
         | Some s, Some _ -> s
         | None, Some _ -> screenOfKey model.Prefs.SelectedView |> Option.defaultValue Overview
         | Some _, None
@@ -629,7 +650,19 @@ module Update =
                     Prefs = { m.Prefs with SelectedRepository = None } }
             savePrefs m |> andThen (navigate Picker))
 
-    let update (msg: Msg) (model: Model) : Step =
+    /// Request the historical replay data the first time the observer
+    /// screen is shown.
+    let private ensureObserverData (step: Step) : Step =
+        match step.Model.Screen, step.Model.Observer.Data with
+        | Observer, ObserverNotRequested ->
+            let url = Specula.Engine.Observer.ReplayView.path
+            step
+            |> andThen (fun m ->
+                { m with Observer = { m.Observer with Data = ObserverLoading } }
+                |> register { Request = FetchObserverReplay; Repo = None; Generation = m.Generation; Url = Some url } (httpEffect url HttpResponseKind.Json None))
+        | _ -> step
+
+    let private updateCore (msg: Msg) (model: Model) : Step =
         match msg with
         | Init location ->
             let requested, shared = parseLocation location
@@ -660,6 +693,13 @@ module Update =
         | ReplayEnd text -> just { model with Replay = { model.Replay with EndText = text; Error = None } }
         | ReplayFilter key -> just { model with Replay = { model.Replay with Filter = Events.filterOfKey key |> Option.defaultValue model.Replay.Filter } }
         | ReplayUseCompetition -> replayFromCompetition model
+        | ObserverMode mode when mode = "local" || mode = "remote" ->
+            just { model with Observer = { model.Observer with Mode = mode; Index = None } }
+        | ObserverMode _ -> just model
+        | ObserverCheckpoint value ->
+            match Int32.TryParse value with
+            | true, k -> just { model with Observer = { model.Observer with Index = Some k } }
+            | _ -> just model
         | TogglePresentation -> just { model with Replay = { model.Replay with Presentation = not model.Replay.Presentation } }
         | KickoffChanged text -> just { model with Competition = { model.Competition with KickoffText = text; Message = None } }
         | DurationChanged text -> just { model with Competition = { model.Competition with DurationText = text; Message = None } }
@@ -700,6 +740,8 @@ module Update =
         | Ignored -> just model
 
     /// Map a Limen semantic event to a message. Unknown names are wiring bugs.
+    let update (msg: Msg) (model: Model) : Step = updateCore msg model |> ensureObserverData
+
     let ofEvent (event: SemanticEvent) : Msg =
         let value = event.Value |> Option.defaultValue ""
         let key = event.Key |> Option.defaultValue ""
@@ -710,6 +752,8 @@ module Update =
         | "refresh" | "retry" -> Refresh
         | "more" -> LoadMoreCommits
         | "filter" -> SetFilter key
+        | "observerMode" -> ObserverMode value
+        | "observerCheckpoint" -> ObserverCheckpoint value
         | "reqScreen" -> RequirementScreenFilter value
         | "reqType" -> RequirementTypeFilter value
         | "reqStatus" -> RequirementStatusFilter value

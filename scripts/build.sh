@@ -36,6 +36,9 @@ sed -e "s#\./limen/#./${LIMEN_DIR}/#g" -e "s#_framework/dotnet.js#_framework/dot
 sed -e "s#\./limen/#./${LIMEN_DIR}/#g" web/wasm-transport.js > dist/wasm-transport.js
 cp web/app.css dist/app.css
 cp web/theme-bootstrap.js dist/theme-bootstrap.js
+# Historical observer replay data (Rehearsal 009), read by #/observer.
+mkdir -p dist/observer
+cp web/observer/replay-009.json dist/observer/replay-009.json
 sed -e "s#__BUILD__#${SHORT}#g" -e "s#href=\"forma/#href=\"${FORMA_DIR}/#g" web/index.html > dist/index.html
 cp dist/index.html dist/404.html
 touch dist/.nojekyll
