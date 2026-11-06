@@ -19,6 +19,7 @@ CAP-012 Show recorded decisions/corrections only when linked to trustworthy sour
 CAP-013 Replay a user-supplied time window and distinguish planned milestones from observed events.
 CAP-014 Provide mobile-friendly, keyboard/VoiceOver accessible, source-linked presentation.
 CAP-015 Show provenance: source URL, repository, SHA, event timestamp, observed timestamp and adapter/schema version when relevant.
+CAP-016 Read rehearsal observer findings (`indy-init.observer-findings/1`) from the allowlisted path `evidence/observer/findings.json` of the repository being observed. The owner publishes them to an observer repository; the observer never writes to the builder's repository. Specula counts the findings itself, keeps each finding's evidence, requirement IDs, recommendation and any KICKOFF-EXECUTION-PACKET §8 stop-the-line rule it matches, and refuses a file that disagrees with its own summary, uses an unknown severity, or does not declare itself read-only. Specula displays findings; it never acts on them.
 
 ## Explicit limitations
 

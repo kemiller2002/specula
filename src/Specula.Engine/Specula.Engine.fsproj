@@ -29,6 +29,7 @@
     <Compile Include="Observer/Handoff.fs" />
     <Compile Include="Observer/Engine.fs" />
     <Compile Include="Observer/ReplayView.fs" />
+    <Compile Include="ObserverFindings.fs" />
     <Compile Include="Evidence.fs" />
     <Compile Include="Preferences.fs" />
     <Compile Include="Metrics.fs" />

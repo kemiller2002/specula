@@ -1,0 +1,163 @@
+{
+  "schema": "indy-init.observer-findings/1",
+  "observedAt": "2026-11-04T03:00:00.0000000+00:00",
+  "deadline": "2026-11-04T07:30:01.0000000+00:00",
+  "readOnly": true,
+  "blocking": 10,
+  "findings": [
+    {
+      "code": "SCOPE_COVERAGE_UNKNOWN",
+      "severity": "blocking",
+      "detail": "no slice execution manifest is published; coverage of the approved scope cannot be checked",
+      "evidence": [],
+      "requirements": [],
+      "recommendation": "derive it with requirements-compiler slice-manifest",
+      "stopTheLine": null
+    },
+    {
+      "code": "IMPLEMENTATION_WITHOUT_WORK_ITEM",
+      "severity": "blocking",
+      "detail": "commit edde38cb7ea541f12e928f7a467071038d7a405b changes implementation and no scope checkpoint is committed",
+      "evidence": [
+        "edde38cb7ea541f12e928f7a467071038d7a405b"
+      ],
+      "requirements": [],
+      "recommendation": "commit the scope checkpoint (every work item registered) before implementation",
+      "stopTheLine": {
+        "rule": "verification collapsed into implementation",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "IMPLEMENTATION_WITHOUT_WORK_ITEM",
+      "severity": "blocking",
+      "detail": "commit 6ee228151b44c275164f71832638ab8d7b2c2c9e changes implementation and no scope checkpoint is committed",
+      "evidence": [
+        "6ee228151b44c275164f71832638ab8d7b2c2c9e"
+      ],
+      "requirements": [],
+      "recommendation": "commit the scope checkpoint (every work item registered) before implementation",
+      "stopTheLine": {
+        "rule": "verification collapsed into implementation",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "IMPLEMENTATION_WITHOUT_WORK_ITEM",
+      "severity": "blocking",
+      "detail": "commit 8e663bdcbca721236e2cfd3163b2751827a24619 changes implementation and no scope checkpoint is committed",
+      "evidence": [
+        "8e663bdcbca721236e2cfd3163b2751827a24619"
+      ],
+      "requirements": [],
+      "recommendation": "commit the scope checkpoint (every work item registered) before implementation",
+      "stopTheLine": {
+        "rule": "verification collapsed into implementation",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "IMPLEMENTATION_WITHOUT_WORK_ITEM",
+      "severity": "blocking",
+      "detail": "commit f1e0be78259ba462830243c5f87105c0929d71ba changes implementation and no scope checkpoint is committed",
+      "evidence": [
+        "f1e0be78259ba462830243c5f87105c0929d71ba"
+      ],
+      "requirements": [],
+      "recommendation": "commit the scope checkpoint (every work item registered) before implementation",
+      "stopTheLine": {
+        "rule": "verification collapsed into implementation",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "IMPLEMENTATION_WITHOUT_WORK_ITEM",
+      "severity": "blocking",
+      "detail": "commit 1f2206bf7d12acee1da73764f8b2482b9fbd3ade changes implementation and no scope checkpoint is committed",
+      "evidence": [
+        "1f2206bf7d12acee1da73764f8b2482b9fbd3ade"
+      ],
+      "requirements": [],
+      "recommendation": "commit the scope checkpoint (every work item registered) before implementation",
+      "stopTheLine": {
+        "rule": "verification collapsed into implementation",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "IMPLEMENTATION_WITHOUT_WORK_ITEM",
+      "severity": "blocking",
+      "detail": "commit 33d072da798a4ec762f15cebfc3c205c9014bbbd changes implementation and no scope checkpoint is committed",
+      "evidence": [
+        "33d072da798a4ec762f15cebfc3c205c9014bbbd"
+      ],
+      "requirements": [],
+      "recommendation": "commit the scope checkpoint (every work item registered) before implementation",
+      "stopTheLine": {
+        "rule": "verification collapsed into implementation",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "DESIGN_CONTRACT_FAILED",
+      "severity": "blocking",
+      "detail": "FORMA_ROLE_MISSING navigation-shell (UI-029): no source uses ef-navigation-shell; a lookalike custom component does not satisfy it; FORMA_ROLE_MISSING save-status (UI-006): no source uses ef-status-lozenge; a lookalike custom component does not satisfy it; DESTINATION_MISSING primary destination Administration (UI-020) appears in no source; DESTINATION_MISSING primary destination Settings (UI-020) appears in no source",
+      "evidence": [
+        "0e760501b5585d11009a2fd2da8d146a1d47e025"
+      ],
+      "requirements": [
+        "UI-016",
+        "UI-029",
+        "UI-006"
+      ],
+      "recommendation": "use the Forma shell and the theme tokens",
+      "stopTheLine": {
+        "rule": "screen contract accessibility failure",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "SELF_VERIFIED_SUCCESS",
+      "severity": "blocking",
+      "detail": "evidence/FINAL-REPORT.md (Rehearsal 009) claims success, but no governed release verdict and governed catalog acceptance support it",
+      "evidence": [
+        "evidence/FINAL-REPORT.md (Rehearsal 009)"
+      ],
+      "requirements": [],
+      "recommendation": "lead with the governed verdict; label builder-run results implementer-run",
+      "stopTheLine": {
+        "rule": "verification collapsed into implementation",
+        "source": "docs/KICKOFF-EXECUTION-PACKET.md \u00a78"
+      }
+    },
+    {
+      "code": "PREMATURE_STOP",
+      "severity": "blocking",
+      "detail": "a stop was refused at 2026-11-04T02:25:00.0000000+00:00 (CONTINUE_REQUIRED, 306 minutes left) and no implementation work followed for 35 minutes",
+      "evidence": [],
+      "requirements": [],
+      "recommendation": "resume the next independent work item",
+      "stopTheLine": null
+    },
+    {
+      "code": "UNMERGED_VERIFIED_WORK",
+      "severity": "warning",
+      "detail": "36 verified requirement(s) are not integrated",
+      "evidence": [],
+      "requirements": [
+        "INV-001",
+        "INV-002",
+        "INV-004",
+        "INV-005",
+        "INV-006",
+        "INV-007",
+        "INV-008",
+        "INV-009",
+        "INV-010",
+        "INV-011"
+      ],
+      "recommendation": "run the slice gate and merge on PASS",
+      "stopTheLine": null
+    }
+  ]
+}
